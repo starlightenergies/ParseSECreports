@@ -22,6 +22,10 @@
 
 ### What it is NOT
 - not trading software
-- long term only investing
-- only once piece of the process
+- not complete yet
+- not useful unless you know what you are doing
+
+### LICENSE
+- use it at your own risk. No guarantees of ANY KIND
+- Licenses of other authors included. What they offer is their business, not ours. 
 
