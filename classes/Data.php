@@ -25,6 +25,16 @@ class Data {
 
 	}
 
+	public function setTaxonomy($c) {
+
+		if($this->taxonomy == 'dei') {
+			$this->taxonomy = '';
+		}
+		if(preg_match("/[a-zA-Z0-9\-]/",$c)) {
+			$this->taxonomy .= $c;
+		}
+	}
+
 	public function getId(): int 	{
 		return $this->id;
 	}

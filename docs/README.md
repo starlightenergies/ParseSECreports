@@ -1,4 +1,4 @@
-# Parse SEC Reports
+# Parse XBRL based SEC Report JSON Data
 
 ## Gathers JSON info for > 14000 public companies
 - organizes for SQL insertion
@@ -12,8 +12,10 @@
 
 ### Status
 - Original commit: June 20, 2021
-- Version: 0.1.0
+- Version: 0.1.5
 - Not in working status yet
+- Reads 1 corporate file with all years financial data without error (14000+ entries)
+- ready for database table creation and testing
 
 ### Objectives
 - Automate daily report gathering (over 14,000 per business day)

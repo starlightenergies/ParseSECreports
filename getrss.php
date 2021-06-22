@@ -28,6 +28,8 @@ require_once "includes/programDefines.inc";
 $d = trim(shell_exec('echo ${DSN}'));
 $u = trim(shell_exec('echo ${USER}'));
 $p = trim(shell_exec('echo ${PASS}'));
+$T = trim(shell_exec('echo ${TERM}'));
+define('TERM', $T);
 
 //get database handle
 /*
@@ -64,6 +66,7 @@ while (!feof($fh)) {
 		case "[": $State->key = LEFTBRACKET; buildRecord($char,$State,$Record); break;
 		case "]": $State->key = RIGHTBRACKET; buildRecord($char,$State,$Record);break;
 		case '"': $State->key = DOUBLEQUOTE; buildRecord($char,$State,$Record);break;
+		case "\\":$State->key = BACKSLASH; buildRecord($char,$State,$Record);break;
 		case "\n": break;
 		default:  buildRecord($char,$State,$Record);
 	}
@@ -76,10 +79,17 @@ fclose($fh);
 
 function displayActivity($c,$S,$R) {
 
+	$rows = 10;
+	$cols = 10;
+	echo "\e[{$rows};{$cols}H";	//go to specific position on screen
 	echo "Company: " . $R->company_name . "\t";
 	echo "CIK: " . $R->cik . "\t";
 	echo "Key Name: " . $R->key_name . "\t";
 	echo "Key Value: " . $R->key_value . "\n";
+	//echo "\e[1B";		//goes down 1 row
+	//$rows = exec("tput -Txterm-256color lines");
+	//echo "\e[{$rows};{$cols}H";	//go to specific position on screen
+
 
 	echo "Datastore count: " . count($R->dataStore) . "\t";
 	echo "Current Data ID: " . $R->currentObjectId . "\t";
@@ -87,15 +97,14 @@ function displayActivity($c,$S,$R) {
 		$data_id = $R->currentObjectId;
 		$data = $R->dataStore[$data_id];
 		$type = $data->data_type;
+		echo "Data Taxonomy: " . $data->taxonomy . "\t";
 		echo "Data Object Type: " . $type . "\t";
-		echo "Data Units Type: " . $data->data_units . "\t";
+		echo "Data Units Type: " . $data->data_units . "\n";
 		echo "Data Label Value: " . $data->label . "\n";
-		echo "Data Description: " . $data->description;  //this is really long string so separate line
-		if(strlen($data->description) % 30 == 0 ) {
-			echo "\n";
-		}
+		echo "Data Description: " . $data->description ."\n";  //this is really long string so separate line
+
 		if(count($data->entryStore) > 0) {
-				echo "\nRecordstore count: " . count($data->entryStore) . "\t";
+				echo "Recordstore count: " . count($data->entryStore) . "\t";
 				echo "Current Entry ID: " . $data->currentEntryId . "\t";
 				$entry = $data->entryStore[$data->currentEntryId];
 				echo "Entry Object Type: " . $entry->name . "\t";
@@ -103,10 +112,16 @@ function displayActivity($c,$S,$R) {
 				echo "Entry Value: " . $entry->current_value . "\t";
 				echo "Total Entry KeyVals: " . count($entry->values) . "\n";
 			} else
-			{ echo "\n"; }
-	} else { echo "\n"; }
+			{
 
-	echo "Task: " . $S->task . "\t";
+				echo "\n";
+			}
+	} else {
+
+		echo "\n";
+	}
+
+	echo "Current Task: " . $S->task . "\t";
 	echo "Data Type: " . $S->datatype . "\t";
 	echo "State->key: " . $S->key . "\t";
 	if ($c != "\n") {
@@ -115,12 +130,39 @@ function displayActivity($c,$S,$R) {
 
 	echo "character count: " . $S->char_id . "\t";
 	echo "brace count: " . $S->braces . "\t";
-	echo "quote count: " . $S->quotes . "\n";
+	echo "quote count: " . $S->quotes . "\n\n\n";
 
-	echo "\n\n";
 
-	if( $c == '}' ) {$sleep = 85; sleep($sleep);}
+	$theD = function ($R,$S) {
+		$d = $R->dataStore;
+		foreach( $d as $key=> $data) {
+			echo $key . " val: " . $data->data_type . " and entries: " . count($data->entryStore) .
+				" and units: " . $data->data_units . "\n";
 
+			$entries = $data->entryStore;
+			foreach($entries as $key => $ent) {
+				$vals = $ent->values;
+				echo "\n";
+				echo "file point char: " . $S->char_id . "\n";
+				echo "data type field size: " . strlen($data->data_type) . "\n";
+
+					foreach ($vals as $key2 => $values) {
+						echo "entry key: " . $key2 . " entry val: " . $values . "\n";
+						if (!preg_match("/[A-Z0-9\-]/",$values)) {
+							echo "weird character\n";
+							sleep(5);
+						}
+					}
+			}
+
+		}
+	};
+
+	if($c == '}') {sleep(0);}
+	if($c == ']') {$theD($R,$S);sleep(0);}
+	if($S->char_id >370000) {
+		sleep(0);
+	}
 
 }
 
@@ -137,6 +179,7 @@ function buildRecord($char,$State,$Record) {
 		case COMMA: $results = $State->handleComma(); break;
 		case LEFTBRACKET: $results = $State->handleLeftBracket(); break;
 		case RIGHTBRACKET: $results = $State->handleRightBracket();break;
+		case BACKSLASH: $results = $State->handleBackSlash();break;
 		default: $results = $State->handleDefault();
 	}
 
@@ -150,6 +193,13 @@ function buildRecord($char,$State,$Record) {
 				break;
 			case MAKEVALUE:
 				updateValue($Record, $char);
+				break;
+			case MAKENEWDATAOBJECT:
+				$State->datatype = DATA;
+				$State->task = CREATEDATAOBJ;
+				$currentObject = $Record->currentObjectId;
+				$data = $Record->dataStore[$currentObject];
+				$obj_id = $Record->createDataObject($data->taxonomy);
 				break;
 			case STOREKEYVAL:
 			case STOREKEY:
@@ -181,17 +231,13 @@ function buildRecord($char,$State,$Record) {
 						break;
 					case US_GAAP_TYPE:
 						$State->datatype = DATA;
-						$State->task = CREATEDATAOBJ;
-						$obj_id = $Record->createDataObject(US_GAAP_TYPE);
-						$header[$Record->key_name] = $Record->key_value;
-						$Record->header[] = $header;
-						$Record->key_name = '';
-						$Record->key_value = '';
+
+
 						break;
 					//case "ifrs":
 					//case "srt":
 					default:
-						echo NEEDSWORK;
+						echo NEEDSWORK . $State->char_id . "\n"; sleep(3600);
 
 				}
 				break;
@@ -208,6 +254,11 @@ function buildRecord($char,$State,$Record) {
 			case MAKEKEY:
 				updateKey($Record, $char, $State);
 				break;
+			case STORETAXONOMYKEY:
+					$id = $Record->currentObjectId;
+					$data = $Record->dataStore[$id];
+					$data->setTaxonomy($char);
+					break;
 			case MAKEVALUE:
 			case STOREKEY:
 				checkBraces($State);
@@ -219,7 +270,7 @@ function buildRecord($char,$State,$Record) {
 				updateDescriptionValue($Record,$char, $State);
 				break;
 			default:
-				echo NEEDSWORK;
+				echo NEEDSWORK . $State->char_id . "\n"; sleep(3600);
 		}
 
 	} elseif ($State->datatype == ENTRY) {
@@ -240,7 +291,7 @@ function buildRecord($char,$State,$Record) {
 				checkBraces($State);break;
 			case STOREKEYVAL:
 				storeEntryKeyAndValue($Record);break;
-			default: echo NEEDSWORK;
+			default: echo NEEDSWORK . $State->char_id . "\n"; sleep(3600);
 		}
 	}
 	return $Record;
@@ -260,7 +311,7 @@ function updateLabelKey($S) {
 function updateDescriptionValue($R,$c, $S) {
 
 	if ($S->quotes == 1) {
-		$curr_object = $R->dataStore[$R->currentObject_id];
+		$curr_object = $R->dataStore[$R->currentObjectId];
 		$descrip = $curr_object->description;
 		$descrip .= $c;
 		$curr_object->description = $descrip;
@@ -271,7 +322,7 @@ function updateDescriptionValue($R,$c, $S) {
 function updateLabelValue($R,$c, $S) {
 
 	if ($S->quotes == 1) {
-		$curr_object = $R->dataStore[$R->currentObject_id];
+		$curr_object = $R->dataStore[$R->currentObjectId];
 		$label = $curr_object->label;
 		$label .= $c;
 		$curr_object->label = $label;
@@ -309,9 +360,10 @@ function updateEntryKey($R,$c) {
 
 function checkBraces($S) {
 	//S is State object
+
 	if($S->braces == 3) {
 		$S->task = IGNORE;
-	} elseif ($S->braces >= 4) {
+	} elseif ($S->braces >= 4 ||$S->braces == 2) {
 		$S->task = MAKEKEY;
 	}
 }

@@ -14,6 +14,7 @@ class StateMachine
 	public string $datatype;                            	//header or data or entry
 	public int $char_id;
 	public int $quotes;
+	public int $backslash;
 	public int $key;
 	public int $record_id;
 	public array $history = [];							//keeps track of history
@@ -28,6 +29,7 @@ class StateMachine
 		$this->char_id = 0;
 		$this->quotes = 0;
 		$this->key = 0;
+		$this->backslash = 0;
 
 
 	}
@@ -36,7 +38,7 @@ class StateMachine
 	{
 
 		echo "Fin Record Class ID: " . $this->record_id . "\t";
-		echo "Current Task: " . $this->task . "\t";
+		echo "Previous Task: " . $this->task . "\t";
 		if ($this->datatype == HEADER) {
 			echo "Working on Header\n";
 		} elseif ($this->datatype == DATA) {
@@ -61,7 +63,6 @@ class StateMachine
 				$result = GETNEXTCHAR;
 			} elseif($this->task == MAKEDESCRIPTIONVALUE) {
 				$this->braces -= 1;
-				$this->quotes = ZERO;
 				$this->datatype = HEADER;
 				$result = GETNEXTCHAR;
 			} elseif ($this->quotes == 1){
@@ -93,16 +94,35 @@ class StateMachine
 			return CONTINUEPROCESSING;
 
 	}
+	public function handleBackSlash(): int {
+		//inside labels and descriptions sometimes the escape \ is used on quotes etc
 
+		if ($this->quotes == 1 ) {
+			$this->char_id += 1;
+			$this->backslash += 1;
+		}
+		return CONTINUEPROCESSING;
+	}
+
+	//need to refactor this method TODO
 	public function handleQuotes (): int {
 
+		$result = GETNEXTCHAR;
 		if($this->quotes == ZERO && $this->task == MAKEKEY) {
 			$this->quotes += 1;
 			$this->char_id += 1;
 		} elseif($this->quotes == ZERO && $this->task == MAKEVALUE) {
 			$this->quotes += 1;
 			$this->char_id += 1;
+		} elseif($this->quotes == ZERO && $this->task == IGNORE) {
+			$this->quotes += 1;
+			$this->char_id += 1;
 		} elseif ($this->quotes == ZERO && $this->task == STOREKEYVAL) {
+			$this->quotes += 1;
+			$this->char_id += 1;
+			$this->task = MAKEKEY;
+			array_push($this->history,MAKEKEY);
+		} elseif ($this->quotes == ZERO && $this->task == STOREKEY && $this->datatype == DATA) {
 			$this->quotes += 1;
 			$this->char_id += 1;
 			$this->task = MAKEKEY;
@@ -119,21 +139,80 @@ class StateMachine
 		} elseif ($this->quotes == ZERO && $this->task == MAKEDESCRIPTIONVALUE) {
 			$this->quotes += 1;
 			$this->char_id += 1;
+		} elseif ($this->quotes == ZERO && $this->task == CREATEDATAOBJ && $this->braces == 1) {
+			$this->quotes += 1;
+			$this->char_id += 1;
+			$this->task = STORETAXONOMYKEY;
+			array_push($this->history, STORETAXONOMYKEY);
 		} elseif ($this->quotes == ZERO && $this->task == CREATEDATAOBJ) {
 			$this->quotes += 1;
 			$this->char_id += 1;
 			$this->task = MAKEKEY;
-			array_push($this->history,MAKEKEY);
-
-			} elseif($this->quotes == 1) {
-			//this assumes there are no quotes in the value portion TODO
-			$this->quotes += 1;
-			$this->task = DONE;
-			$this->char_id += 1;
-			array_push($this->history,DONE);
+			array_push($this->history, MAKEKEY);
+		} elseif($this->quotes == 1 && $this->task == MAKELABEL) {
+			//ignore quotes escaped inside values
+			if($this->backslash == 1) {
+				$this->task = MAKELABEL;
+				$this->char_id += 1;
+				array_push($this->history,MAKELABEL);
+				$this->backslash = 0;
+			} else {
+				$this->quotes += 1;
+				$this->task = MAKELABEL;
+				$this->char_id += 1;
+				array_push($this->history, MAKELABEL);
+			}
+		} elseif($this->quotes == 1 && $this->task == MAKEDESCRIPTION) {
+			//ignore quotes inside values
+			if($this->backslash == 1) {
+				$this->task = MAKEDESCRIPTION;
+				$this->char_id += 1;
+				array_push($this->history,MAKEDESCRIPTION);
+				$this->backslash = 0;
+			} else {
+				$this->quotes += 1;
+				$this->task = MAKEDESCRIPTION;
+				$this->char_id += 1;
+				array_push($this->history, MAKEDESCRIPTION);
+			}
+		} elseif($this->quotes == 1 && $this->task == MAKELABELVALUE) {
+			//ignore quotes inside values
+			if($this->backslash == 1) {
+				$this->task = MAKELABELVALUE;
+				$this->char_id += 1;
+				array_push($this->history,MAKELABELVALUE);
+				$this->backslash = 0;
+			} else {
+				$this->quotes += 1;
+				$this->task = MAKELABELVALUE;
+				$this->char_id += 1;
+				array_push($this->history, MAKELABELVALUE);
+			}
+		} elseif($this->quotes == 1 && $this->task == MAKEDESCRIPTIONVALUE) {
+			//ignore quotes inside values
+			if($this->backslash == 1) {
+				$this->task = MAKEDESCRIPTIONVALUE;
+				$this->char_id += 1;
+				array_push($this->history,MAKEDESCRIPTIONVALUE);
+				$this->backslash = 0;
+			} else {
+				$this->quotes += 1;
+				$this->char_id += 1;
+			}
+		} else {
+			//ignore quotes inside values
+			if($this->backslash == 1) {
+				$this->char_id += 1;
+				$this->backslash = 0;
+			} else {
+				$this->quotes += 1;
+				$this->task = DONE;
+				$this->char_id += 1;
+				array_push($this->history, DONE);
+			}
 		}
 
-		return GETNEXTCHAR;
+		return $result;
 	}
 
 	public function handleDefault(): int {
@@ -154,17 +233,29 @@ class StateMachine
 		if($this->task == MAKELABEL) {
 			$this->task = MAKELABELVALUE;
 			array_push($this->history, MAKELABELVALUE);
+			$this->quotes = ZERO;
+			$this->char_id += 1;
+			$result = GETNEXTCHAR;
 		} elseif ($this->task == MAKEDESCRIPTION) {
 			$this->task = MAKEDESCRIPTIONVALUE;
 			array_push($this->history,MAKEDESCRIPTIONVALUE);
+			$this->quotes = ZERO;
+			$this->char_id += 1;
+			$result = GETNEXTCHAR;
+		} elseif ($this->task == MAKEDESCRIPTIONVALUE && $this->quotes == 1) {
+			$this->task = MAKEDESCRIPTIONVALUE;
+			array_push($this->history,MAKEDESCRIPTIONVALUE);
+			$this->char_id += 1;
+			$result = CONTINUEPROCESSING;
 		} else {
 			$this->task = MAKEVALUE;
 			array_push($this->history, MAKEVALUE);
+			$this->quotes = ZERO;
+			$this->char_id += 1;
+			$result = GETNEXTCHAR;
 		}
 
-		$this->quotes = ZERO;
-		$this->char_id += 1;
-		return GETNEXTCHAR;
+		return $result;
 	}
 
 	public function handleComma(): int {
@@ -181,6 +272,11 @@ class StateMachine
 				$this->task = MAKEDESCRIPTION;
 				$this->quotes = ZERO;
 				$result = GETNEXTCHAR;
+		} elseif ($this->task == MAKEDESCRIPTIONVALUE && $this->quotes == 2) {
+			$this->datatype = HEADER;
+			$this->task = MAKENEWDATAOBJECT;
+			$this->quotes = ZERO;
+			$result = CONTINUEPROCESSING;
 		} else {
 			switch ($this->quotes) {
 				case 2: $this->quotes = ZERO; $this->task = STOREKEYVAL; array_push($this->history, STOREKEYVAL);break;
