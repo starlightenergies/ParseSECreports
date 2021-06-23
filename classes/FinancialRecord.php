@@ -1,9 +1,6 @@
 <?php
 namespace JDApp;
 
-
-use Cassandra\Date;
-
 class FinancialRecord
 {
 

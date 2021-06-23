@@ -5,3 +5,5 @@ C
 phpstan.neon,9/5/9503203c22f7da4d5d8e7e8432696a59caf17f6c
 =
 composer.json,3/9/3957b91a0d8450cea0115cfd5af69eac90d75897
+>
+docs/README.md,9/f/9f7cbce127b94a94ee14460050fbff2ce58417d0

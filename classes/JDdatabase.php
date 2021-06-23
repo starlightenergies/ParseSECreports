@@ -15,7 +15,7 @@ use Nette\Database\ResultSet;
  * @since:   	2021-04-04
  * @controller:
  * @view:
- * @mytodo:		dynamic alerts
+ * @mytodo:
  * @delegates:
  * @inheritsFrom:
  * @inheritsTo:

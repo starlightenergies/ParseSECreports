@@ -3,7 +3,6 @@ namespace JDApp;
 require_once "vendor/autoload.php";
 require_once "includes/programDefines.inc";
 
-
 /**
  * @purpose:	Stores financial data into mysql database
  * @filename:	Database.php
@@ -20,6 +19,12 @@ require_once "includes/programDefines.inc";
  * @inheritsTo:
  * @comment:
  */
+
+//$alldata = file("https://data.sec.gov/api/xbrl/companyfacts/CIK0001318605.json");
+//file_put_contents('allTesladata.json',$alldata);
+
+//$alldata = file("https://data.sec.gov/api/xbrl/companyfacts/CIK0000896878.json");
+//file_put_contents('data/allIntuit.json',$alldata);
 
 
 //export these environment variables from your .bashrc file
@@ -48,7 +53,7 @@ echo "the new file is " . count($newCharArray) . " characters\n";
 $fdp->createFile();
 */
 
-$fh = fopen('data/allTesladata.json','r');
+$fh = fopen('data/allIntuit.json','r');
 $Record = new FinancialRecord();
 $State = new StateMachine();
 $State->record_id = FinancialRecord::$record_id;
@@ -158,10 +163,10 @@ function displayActivity($c,$S,$R) {
 		}
 	};
 
-	if($c == '}') {sleep(0);}
-	if($c == ']') {$theD($R,$S);sleep(0);}
-	if($S->char_id >370000) {
-		sleep(0);
+	if($c == '}') {sleep(10);}
+	if($c == ']') {$theD($R,$S);sleep(10);}
+	if($S->char_id >0) {
+		sleep(5);
 	}
 
 }
@@ -231,8 +236,9 @@ function buildRecord($char,$State,$Record) {
 						break;
 					case US_GAAP_TYPE:
 						$State->datatype = DATA;
-
-
+					case FACTS:
+						$Record->key_name = '';
+						$State->braces -= 1;			//put in to address diff style in intuit report TODO
 						break;
 					//case "ifrs":
 					//case "srt":

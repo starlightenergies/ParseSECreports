@@ -42,3 +42,4 @@ const MAKEDESCRIPTION = "make_description";
 const MAKEDESCRIPTIONVALUE = "make_description_value";
 const MAKENEWDATAOBJECT = "make_new_data_object";
 const STORETAXONOMYKEY = "store_taxo_key";
+const FACTS = "facts";
