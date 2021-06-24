@@ -122,11 +122,6 @@ class StateMachine
 			$this->char_id += 1;
 			$this->task = MAKEKEY;
 			array_push($this->history,MAKEKEY);
-		} elseif ($this->quotes == ZERO && $this->task == STOREKEY) {				//new from Intuit data TODO
-			$this->quotes += 1;
-			$this->char_id += 1;
-			$this->task = MAKEKEY;
-			array_push($this->history,MAKEKEY);
 		} elseif ($this->quotes == ZERO && $this->task == STOREKEY && $this->datatype == DATA) {
 			$this->quotes += 1;
 			$this->char_id += 1;
@@ -221,6 +216,7 @@ class StateMachine
 	}
 
 	public function handleDefault(): int {
+
 
 			switch($this->task) {
 				case MAKEDESCRIPTION;

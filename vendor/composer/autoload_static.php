@@ -118,6 +118,7 @@ class ComposerStaticInitc54140dfd055cef4e176f08aa2bd1a7c
         'JDApp\\FinanceDataParser' => __DIR__ . '/../..' . '/classes/FinanceDataParser.php',
         'JDApp\\FinancialRecord' => __DIR__ . '/../..' . '/classes/FinancialRecord.php',
         'JDApp\\JDdatabase' => __DIR__ . '/../..' . '/classes/JDdatabase.php',
+        'JDApp\\Labels' => __DIR__ . '/../..' . '/classes/Labels.php',
         'JDApp\\StateMachine' => __DIR__ . '/../..' . '/classes/StateMachine.php',
         'JDapp\\Classes\\Sitemap' => __DIR__ . '/../..' . '/classes/SiteMap.php',
         'Nette\\ArgumentOutOfRangeException' => __DIR__ . '/..' . '/nette/utils/src/exceptions.php',

@@ -24,10 +24,6 @@ const ZERO = 0;
 const HEADER = "header";
 const DATA = "data";
 const ENTRY = "entry";
-const SEC_ID = "cik";
-const COMPANY_NAME = "entityName";
-const DOC_ENTITY_TYPE = "dei";
-const US_GAAP_TYPE = "us-gaap";
 const CREATEDATAOBJ = "create_data_object";
 const NEEDSWORK = "needs work ";
 const STOREUNITS = "store_units";
@@ -42,4 +38,14 @@ const MAKEDESCRIPTION = "make_description";
 const MAKEDESCRIPTIONVALUE = "make_description_value";
 const MAKENEWDATAOBJECT = "make_new_data_object";
 const STORETAXONOMYKEY = "store_taxo_key";
+
+//labels
 const FACTS = "facts";
+const XBRLLABEL = "dei";
+const DATALABEL = 'label';
+const DESCRIPLABEL = 'description';
+const SEC_ID = "cik";
+const COMPANY_NAME = "entityName";
+const DOC_ENTITY_TYPE = "dei";
+const US_GAAP_TYPE = "us-gaap";
+const UNITS = "units";

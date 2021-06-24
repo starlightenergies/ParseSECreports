@@ -163,8 +163,8 @@ function displayActivity($c,$S,$R) {
 		}
 	};
 
-	if($c == '}') {sleep(10);}
-	if($c == ']') {$theD($R,$S);sleep(10);}
+	if($c == '}') {sleep(2);}
+	if($c == ']') {$theD($R,$S);sleep(2);}
 	if($S->char_id >0) {
 		sleep(5);
 	}
@@ -239,7 +239,21 @@ function buildRecord($char,$State,$Record) {
 					case FACTS:
 						$Record->key_name = '';
 						$State->braces -= 1;			//put in to address diff style in intuit report TODO
+						$State->task = MAKEKEY;
 						break;
+					case DATALABEL:								//new
+						$Record->key_name = '';
+						$State->task = MAKELABELVALUE;
+						break;
+					case DESCRIPLABEL:							//new
+						$Record->key_name = '';
+						$State->task = MAKEDESCRIPTIONVALUE;
+						break;
+					case UNITS:									//new
+						$Record->key_name = '';
+						$State->task = MAKEKEY;
+						break;
+
 					//case "ifrs":
 					//case "srt":
 					default:
@@ -275,6 +289,19 @@ function buildRecord($char,$State,$Record) {
 			case MAKEDESCRIPTIONVALUE:
 				updateDescriptionValue($Record,$char, $State);
 				break;
+			case DATALABEL:								//new
+				$Record->key_name = '';
+				$State->task = MAKELABELVALUE;
+				break;
+			case DESCRIPLABEL:							//new
+				$Record->key_name = '';
+				$State->task = MAKEDESCRIPTIONVALUE;
+				break;
+			case UNITS:									//new
+				$Record->key_name = '';
+				$State->task = MAKEKEY;
+				break;
+
 			default:
 				echo NEEDSWORK . $State->char_id . "\n"; sleep(3600);
 		}
@@ -368,7 +395,7 @@ function checkBraces($S) {
 	//S is State object
 
 	if($S->braces == 3) {
-		$S->task = IGNORE;
+		$S->task = MAKEKEY;								//was IGNORE
 	} elseif ($S->braces >= 4 ||$S->braces == 2) {
 		$S->task = MAKEKEY;
 	}

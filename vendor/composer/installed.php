@@ -1,12 +1,13 @@
 <?php return array (
   'root' => 
   array (
-    'pretty_version' => 'v3.1.3',
-    'version' => '3.1.3.0',
+    'pretty_version' => 'dev-master',
+    'version' => 'dev-master',
     'aliases' => 
     array (
+      0 => '3.1.x-dev',
     ),
-    'reference' => '08aff4d62c80873752254b0b655027211f501c4d',
+    'reference' => '99b0c6fc1a17f5d49fe62d960c131648ddb0f276',
     'name' => 'james/vaultbear',
   ),
   'versions' => 
@@ -37,12 +38,13 @@
     ),
     'james/vaultbear' => 
     array (
-      'pretty_version' => 'v3.1.3',
-      'version' => '3.1.3.0',
+      'pretty_version' => 'dev-master',
+      'version' => 'dev-master',
       'aliases' => 
       array (
+        0 => '3.1.x-dev',
       ),
-      'reference' => '08aff4d62c80873752254b0b655027211f501c4d',
+      'reference' => '99b0c6fc1a17f5d49fe62d960c131648ddb0f276',
     ),
     'kodova/hamcrest-php' => 
     array (
