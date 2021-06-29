@@ -16,6 +16,7 @@ class FinancialRecord
 	public string $key_name;
 	public string $key_value;
 
+
 	//data properties
 	public array $dataStore;                            //array of data record batches
 	public int $currentObjectId;						//data object currently being worked on
@@ -33,13 +34,14 @@ class FinancialRecord
 	}
 
 
-	public function createDataObject($taxo): int {
+	public function createDataObject($taxo) {
 
 		$dataObject = new Data($taxo);
+		$status = $dataObject->updateCompletionStatus();			//taxonomy property updated 1/7
 		$object_id = $dataObject->getId();
 		$this->dataStore[$object_id] = $dataObject;
 		$this->currentObjectId = $object_id;
-		return $object_id;
+		$status = $dataObject->updateCompletionStatus();			//curr_id property updated 2/7
 	}
 }
 

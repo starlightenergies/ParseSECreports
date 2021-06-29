@@ -3,7 +3,7 @@
 ## Gathers JSON info for > 14000 public companies
 - organizes for SQL insertion
 - stores into MYSQL or compatible
-- tags key data with qualitative values for later use
+- tags key data with customizable qualitative values for later use
 
 ### How it works
 - State machine evaluates JSON files character by character and tells
@@ -18,6 +18,7 @@
 - ready for database table creation and testing
 
 ### Objectives
+- Abstract away the need to understand XBRL, which is essentially distracting
 - Automate daily report gathering (over 14,000 per business day)
 - Make data ready for analysis, comparisons, conclusions
 - Make data ready for supporting decisions and action steps

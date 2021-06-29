@@ -1,0 +1,35 @@
+#just a starter set (can read these from file)				TODO
+#last update 2021-07-01
+#could use identifier re taxonomy type TODO
+#could add qualitative markers here TODO
+
+[header]
+cik
+entityName
+dei
+us-gaap
+facts
+
+
+[measurement]
+USD
+shares
+USD
+sqft
+pure
+D
+
+
+[data]
+label
+description
+units
+
+
+[datatype]
+EntityCommonStockSharesOutstanding
+EntityPublicFloat
+AccountsAndNotesReceivableNet
+AccountsPayableCurrent
+AccountsReceivableNetCurrent
+AccretionAmortizationOfDiscountsAndPremiumsInvestments

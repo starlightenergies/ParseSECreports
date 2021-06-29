@@ -7,7 +7,7 @@
     array (
       0 => '3.1.x-dev',
     ),
-    'reference' => '99b0c6fc1a17f5d49fe62d960c131648ddb0f276',
+    'reference' => '50a3a6965aa898720ffd1dd120d25f0fb0d2e044',
     'name' => 'james/vaultbear',
   ),
   'versions' => 
@@ -44,7 +44,7 @@
       array (
         0 => '3.1.x-dev',
       ),
-      'reference' => '99b0c6fc1a17f5d49fe62d960c131648ddb0f276',
+      'reference' => '50a3a6965aa898720ffd1dd120d25f0fb0d2e044',
     ),
     'kodova/hamcrest-php' => 
     array (

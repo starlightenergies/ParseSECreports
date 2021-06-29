@@ -81,6 +81,7 @@ return array(
     'JDApp\\FinancialRecord' => $baseDir . '/classes/FinancialRecord.php',
     'JDApp\\JDdatabase' => $baseDir . '/classes/JDdatabase.php',
     'JDApp\\Labels' => $baseDir . '/classes/Labels.php',
+    'JDApp\\ProcessFiles' => $baseDir . '/classes/ProcessFiles.php',
     'JDApp\\StateMachine' => $baseDir . '/classes/StateMachine.php',
     'JDapp\\Classes\\Sitemap' => $baseDir . '/classes/SiteMap.php',
     'Nette\\ArgumentOutOfRangeException' => $vendorDir . '/nette/utils/src/exceptions.php',

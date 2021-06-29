@@ -13,6 +13,8 @@ class Data {
 	public string $description;
 	public array $entryStore = [];
 	public int $currentEntryId;
+	public int $completion_status;
+	public int $data_change_flag;
 
 	public function __construct($taxo) {
 		$this->taxonomy = $taxo;
@@ -22,30 +24,41 @@ class Data {
 		$this->label = '';
 		$this->description = '';
 		$this->currentEntryId = 0;
+		$this->completion_status = 0;
+		$this->data_change_flag = 0;
+
 
 	}
 
-	public function setTaxonomy($c) {
+	public function setTaxonomy($taxo): int {
 
-		if($this->taxonomy == 'dei') {
-			$this->taxonomy = '';
+		//set new and check it
+		$this->taxonomy = $taxo;
+		if($this->taxonomy === $taxo) {
+			return 1;
+		} else {
+			return ZERO;
 		}
-		if(preg_match("/[a-zA-Z0-9\-]/",$c)) {
-			$this->taxonomy .= $c;
-		}
+
+	}
+
+	public function updateCompletionStatus(): int {
+
+		// when this reaches 7 then a new data object can be started
+		//taxonomy, type, units, label, description, entries, curr_id
+		return $this->completion_status += 1;
 	}
 
 	public function getId(): int 	{
 		return $this->id;
 	}
 
-	public function createEntry($name): int {
+	public function createEntry($name) {
 
 		$entry = new Entry($name);
 		$entry_id = $entry->getId();
 		$this->entryStore[$entry_id] = $entry;
 		$this->currentEntryId = $entry_id;
-		return $entry_id;
 	}
 
 }
