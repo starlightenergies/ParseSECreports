@@ -1,8 +1,41 @@
 <?php
-
 namespace JDApp;
 use JDApp\StateMachine as State;
 use JDApp\TaxonomyTerms as Terms;
+
+/* MIT LICENSE
+Copyright 2021 StarlightEnergies.com
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+and associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
+THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+/**
+ * @purpose:    	XBRL Report Processing Application
+ * @filename:    	RecordBuilder.php
+ * @version:    	1.0
+ * @lastUpdate:  	2021-07-01
+ * @author:        	James Danforth <james@reemotex.com>
+ * @pattern:
+ * @since:    		2021-06-24
+ * @controller:
+ * @view:
+ * @delegates:
+ * @inheritsFrom:
+ * @inheritsTo:
+ * @comments:		Financial Records should be simple to acquire, analyze and draw conclusions from. XBRL defeats these goals.
+ */
+
 
 class RecordBuilder {
 
@@ -11,7 +44,7 @@ class RecordBuilder {
 	public int $unit_flag;
 	public int $data_type_flag;
 
-	public function __construct(State $S ) {
+	public function __construct(State $S) {
 		$this->State = $S;
 		$this->unit_flag = 0;
 		$this->data_type_flag = 0;
@@ -26,7 +59,7 @@ class RecordBuilder {
 				$currentObject = $Record->currentObjectId;
 				$data = $Record->dataStore[$currentObject]->data_units;
 				$Record->dataStore[$currentObject]->createEntry($data);
-				$dataObj =$Record->dataStore[$currentObject];
+				$dataObj = $Record->dataStore[$currentObject];
 				$StateE->task = MAKEKEY;
 				break;
 			case MAKEKEY:
@@ -45,24 +78,26 @@ class RecordBuilder {
 		}
 	}
 
-	public function processData($Record, $char) {
+	public function processData($Record, $char): int {
 
+		$result = GETNEXTCHAR;  //default
 		$StateM = $this->State;
 		$TermsT = $this->Terms;
 
 		switch ($StateM->task) {
+			case MAKETAXONOMYKEY:
 			case MAKEKEY:
-				$this->updateKey($Record, $char,$TermsT);
+				$this->updateKey($Record, $char);
+				break;
+			case TESTKEY:											//always called by the COLON since key complete then
+				$this->testKey($Record, $TermsT);
+				$StateM->task = MAKEVALUE;							//then hand back control to COLON
 				break;
 			case MAKEVALUE:
 				$this->updateValue($Record, $char);
 				break;
 			case STOREKEY:
-				if($this->data_type_flag == 1) {									//TODO data flag
-
-				} else {
-					$StateM->task = MAKEKEY;
-				}
+				$StateM->task = MAKEKEY;            //ref by left brace prob need to fix TODO
 				break;
 			case STOREKEYVAL:
 				switch ($Record->key_name) {
@@ -77,19 +112,20 @@ class RecordBuilder {
 					case 'description':
 						$curr_data = $Record->dataStore[$Record->currentObjectId];
 						$curr_data->description = $Record->key_value;
-						$curr_data->updateCompletionStatus();										//entries started 5/5
+						$curr_data->updateCompletionStatus();
 						$Record->key_value = '';
 						$Record->key_name = '';
-						if ($curr_data->completion_status == 5){									//once data object finished make a new one.
+						if ($curr_data->completion_status == 6) {
 							$StateM->datatype = HEADER;
 							$StateM->task = MAKENEWDATAOBJECT;
-							echo "here i am in [data] description header make new obj " . $curr_data->completion_status . "char = " . $char . "\n";
-							sleep(60);
+							$this->data_type_flag = 1;            //its almost always the first to be created after obj created
+							$result = CONTINUEPROCESSING;        //causes return to build in Header Loop below...
+
 						} else {
 							$StateM->task = MAKEKEY;
 							echo "here i am in [data] description header make new key " . $curr_data->completion_status . "char = " . $char .
 								"\n";
-							sleep(60);
+							//sleep(60);
 						}
 						break;
 					default:
@@ -97,32 +133,37 @@ class RecordBuilder {
 				break;
 			default:
 		}
-
+		return $result;
 	}
 
 	public function processHeader($Record, $char) {
 
 		$State = $this->State;
+		//$TermsT = $this->Terms;
 
 		switch ($State->task) {
 			case MAKEKEY:
 				$this->updateKey($Record, $char);
 				break;
 			case MAKEVALUE:
-				$this->updateValue($Record, $char);										//clean. ok.
+				//$this->testKey($Record, $TermsT);
+				$this->updateValue($Record, $char);
 				break;
 			case MAKENEWDATAOBJECT:
 				$State->datatype = DATA;
-				$State->task = MAKEKEY;
+				//test for state to see if taxo key coming next
+				if ($State->braces == 1 && $this->data_type_flag == 1) {
+					$State->task = MAKETAXONOMYKEY;                     //tests if next key is taxo key
+				} else {
+					$State->task = MAKEKEY;                                //next key will be data type key
+				}
 				$currentObject = $Record->currentObjectId;
 				$data = $Record->dataStore[$currentObject];
+				echo "Record has descrip: " . $data->description . "\n";
 				$obj_id = $Record->createDataObject($data->taxonomy);
-				echo "here i am in [header] make new obj " . $data->completion_status . " with char = " . $char . "\n";
-				sleep(60);
-				$this->data_type_flag = 1;											//it TODO almost always the first to be created after obj created
-				break;																//TODO change in taxonomy can come before data type..
-			case STOREKEYVAL:														//ok set by comma
-			case STOREKEY:															//ok set by left brace
+				break;
+			case STOREKEYVAL:                                                        //ok set by comma
+			case STOREKEY:                                                            //ok set by left brace
 				switch ($Record->key_name) {
 					case SEC_ID:
 						$Record->cik = $Record->key_value;
@@ -130,7 +171,7 @@ class RecordBuilder {
 						$Record->header[] = $header;
 						$Record->key_name = '';
 						$Record->key_value = '';
-						$this->Terms = new TaxonomyTerms($Record->cik);							//NEW LOGIC METHOD TODO and Test
+						$this->Terms = new Terms($Record->cik);                            //NEW LOGIC METHOD TODO and Test
 						$State->task = MAKEKEY;
 						break;
 					case COMPANY_NAME:
@@ -145,14 +186,12 @@ class RecordBuilder {
 						$State->datatype = DATA;
 						$State->task = CREATEDATAOBJ;
 						$Record->createDataObject(DOC_ENTITY_TYPE);
-						$header[$Record->key_name] = $Record->key_value;				//???TODO
+						$header[$Record->key_name] = $Record->key_value;                //???TODO
 						$Record->header[] = $header;
 						$Record->key_name = '';
 						$Record->key_value = '';
 						$State->task = MAKEKEY;
 						break;
-				//	case US_GAAP_TYPE:
-				//		$State->datatype = DATA;
 					case FACTS:
 						$Record->key_name = '';
 						$State->task = MAKEKEY;
@@ -163,41 +202,31 @@ class RecordBuilder {
 						echo NEEDSWORK . $State->char_id . "\n";
 						sleep(3600);
 				}
-			break;
-		default:
-			echo NEEDSWORK;
+				break;
+			default:
+				echo NEEDSWORK;
 		}
+
 	}
 
+	public function testKey($R, $terms) {
 
-	public function updateKey($R, $c, $terms=null) {
-		//get existing key, update it with curr character
-		//R is Record object, c - character
-		$data_id = $R->currentObjectId;										//ok
+		//R is Record object, terms is Taxonomy Keys class (dictionary of terms)
+		//terms initialized when CIK found so could be null
 
-		if($data_id >= 0) {
-			$curr_object = @$R->dataStore[$data_id];                                //could use switch for data_units etc
-		}																			//Tags like units always come after Datatype TODO
-		 																			//Need to store last key in a buffer and identify after fact TODO
-		if($terms != null) {
-			$dataTermsArray = $terms->getDataTerms();
-			$headerTermsArray = $terms->getHeaderTerms();
+		$data_id = $R->currentObjectId;
+		if ($data_id >= 0) {
+			$curr_object = @$R->dataStore[$data_id];                 //could use switch for data_units etc
 		}
-		if ($data_id == 0) {												//ok
-			$key = $R->key_name;											//ok
-			$key .= $c;														//ok
-			$R->key_name = $key;											//ok
-		} elseif($data_id > 0) {
-			$key = $R->key_name;                                            //ok used as temp holding area
-			$key .= $c;                                                        //ok
-			$R->key_name = ltrim($key);										//removes any leading whitespace
-			//new test needs work
-			if (in_array($R->key_name, $dataTermsArray)||in_array($R->key_name, $headerTermsArray)) {                        //may need to pull this out into new method TODO
+		$dataTermsArray = $terms->getDataTerms();
+		$headerTermsArray = $terms->getHeaderTerms();
+
+			if (in_array($R->key_name, $dataTermsArray) || in_array($R->key_name, $headerTermsArray)) {
 				switch ($R->key_name) {
 					case 'label':
-						break;                        //TODO
+						break;
 					case 'description':
-						break;                        //TODO
+						break;
 					case 'facts':
 						break;
 					case 'units':
@@ -213,25 +242,61 @@ class RecordBuilder {
 						$this->unit_flag = 0;
 						$R->key_name = '';
 						break;
-					case 'us-gaap':                                            //NEW TODO
+					case 'us-gaap':
 						$result = $curr_object->setTaxonomy($R->key_name);            //update with correct taxonomy
 						$R->key_name = '';
-						$curr_object->data_change_flag = $result;
+						$this->data_type_flag = $result;     //flag that next key is data type
+						echo "setup new taxo key here\n";
+						//sleep(30);
 						break;
 					default:
 						$curr_object->data_type = $R->key_name;
-						$curr_object->updateCompletionStatus();
+						$curr_object->updateCompletionStatus();							//typically #3 of 6
 						$R->key_name = '';
-						$this->data_type_flag = 0;								//TODO datatpe key
-				}                                                                //else if in other terms groups TODO
+						$curr_object->data_change_flag = 0;
+						$this->data_type_flag = 0;
+				}                                                            //else if in other terms groups TODO
 				//$R->key_name = '';                                        //switch units, etc to ignore and use
+				//key found
+			} elseif ($this->data_type_flag == 1) {
 
+				//we have a new taxonomy datatype. need to use and store
+				$curr_object->data_type = $R->key_name;
+				//add term to database
+				$terms->addDataTerm($R->key_name);
+				//update database file
+				$terms->updateTermsDatabase();										//new TODO watch frequency drops as db increases
+				//update tracker
+				$curr_object->updateCompletionStatus();
+				$R->key_name = '';
+				$curr_object->data_change_flag = 0;
+				$this->data_type_flag = 0;
+
+			} elseif($this->unit_flag == 1) {
+				//update units first
+				$curr_object->data_units = $R->key_name;
+				$this->unit_flag = 0;
+				//then add term to database									//needs to be units array soon in taxo TODO
+			//	$terms->addDataTerm($R->key_name);							cant add to database until breakout units check above
+			//	echo "new key: " . $R->key_name . "\n";						into its own method "testunits" or similar method TODO
+				$R->key_name = '';
 			}
-		}
 	}
 
 
+	public function updateKey($R, $c) {
+		//get existing key, update it with curr character
+		//R is Record object, c - character
+		$key = $R->key_name;
+		$key .= $c;
+		$R->key_name = ltrim($key);
 
+		//alert if big key length
+		if($size = strlen($R->key_name) > 100 ){
+			echo $R->key_name . " in " .  $R->company_name . "\nis size: " . $size . "\n";
+			sleep(5);
+		}
+	}
 
 	public function updateValue($R, $c) {
 		//get existing value, update it with curr character
@@ -239,6 +304,12 @@ class RecordBuilder {
 		$value = $R->key_value;
 		$value .= $c;
 		$R->key_value = ltrim($value);
+
+		//alert if big key length
+		if($size = strlen($R->key_value) > 1000 ){
+			echo $R->key_value . " in " .  $R->company_name . " \nis size: " . $size . "\n";
+			sleep(5);
+		}
 	}
 
 
@@ -264,23 +335,13 @@ class RecordBuilder {
 		$entry = $data->entryStore[$data->currentEntryId];
 		$result = $entry->insertKey();
 		$result = $entry->insertValue();                                    //need to error check here TODO
-
-		if ($data->completion_status == 5){									//once data object finished make a new one.
-			$S->datatype = HEADER;
-			$S->task = MAKENEWDATAOBJECT;
-		}
 	}
-
 
 
 } //end of class
 
 
 /*
-
-
-
-
 
 	if ($State->datatype == HEADER) {
 		switch ($State->task) {
@@ -493,56 +554,46 @@ function updateEntryKey($R, $c)
 	$entry->current_key .= $c;
 
 }
-
-
-function checkBraces($S)
-{
-	//S is State object
-
-	if ($S->braces == 3) {
-		$S->task = MAKEKEY;                                //was IGNORE
-	} elseif ($S->braces >= 4 || $S->braces == 2) {
-		$S->task = MAKEKEY;
-	}
-}
-
-function log()
-{
-	echo NEEDSWORK;
-}
-
-function updateValue($R, $c)
-{
-	//get existing value, update it with curr character
-	//R is Record object, c - character
-	$value = $R->key_value;
-	$value .= $c;
-	$R->key_value = $value;
-}
-
-function updateKey($R, $c, $S)
-{
-	//get existing key, update it with curr character
-	//R is Record object, c - character
-	$data_id = $R->currentObjectId;
-	if ($data_id == 0 && $S->braces != 4 && $c != '{') {
-		$key = $R->key_name;
-		$key .= $c;
-		$R->key_name = $key;
-	} else {
-		if ($S->braces == 2) {
-			$curr_object = $R->dataStore[$data_id];
-			$type = $curr_object->data_type;
-			$type .= $c;
-			$curr_object->data_type = $type;
-		} elseif ($S->braces == 4) {
-			$curr_object = $R->dataStore[$data_id];
-			$type = $curr_object->data_units;
-			$type .= $c;
-			$curr_object->data_units = $type;
-		}
-	}
-}
-
+//old updateKey routine
+	//new test needs work
+			if (in_array($R->key_name, $dataTermsArray)||in_array($R->key_name, $headerTermsArray)) {                        //may need to pull this out into new method TODO
+				switch ($R->key_name) {
+					case 'label':
+						break;                        //TODO
+					case 'description':
+						break;                        //TODO
+					case 'facts':
+						break;
+					case 'units':
+						$this->unit_flag = 1;                                //flag can be useful
+						$R->key_name = '';
+						break;
+					case 'shares':
+					case 'USD':
+					case 'sqft':
+					case 'pure':
+					case 'D':
+						$curr_object->data_units = $R->key_name;
+						$this->unit_flag = 0;
+						$R->key_name = '';
+						break;
+					case 'us-gaap':                                            //NEW TODO
+						$result = $curr_object->setTaxonomy($R->key_name);            //update with correct taxonomy
+						$R->key_name = '';
+						$this->data_type_flag = $result;     //flag that next key is data type (2)
+						echo "setup new taxo key here\n";
+						sleep(30);
+						break;
+					default:
+						$curr_object->data_type = $R->key_name;
+						$curr_object->updateCompletionStatus();
+						$R->key_name = '';
+						echo "setup new data type key thats in db already\n";
+						sleep(30);
+						$curr_object->data_change_flag = 0;
+						$this->data_type_flag = 0;
+				}                                                            //else if in other terms groups TODO
+				//$R->key_name = '';                                        //switch units, etc to ignore and use
+				//key found
 
 */

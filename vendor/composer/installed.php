@@ -7,7 +7,7 @@
     array (
       0 => '3.1.x-dev',
     ),
-    'reference' => '50a3a6965aa898720ffd1dd120d25f0fb0d2e044',
+    'reference' => '66e0acdf3f245dfc44cea946d1fcda383ccbf2c7',
     'name' => 'james/vaultbear',
   ),
   'versions' => 
@@ -44,7 +44,7 @@
       array (
         0 => '3.1.x-dev',
       ),
-      'reference' => '50a3a6965aa898720ffd1dd120d25f0fb0d2e044',
+      'reference' => '66e0acdf3f245dfc44cea946d1fcda383ccbf2c7',
     ),
     'kodova/hamcrest-php' => 
     array (
@@ -89,6 +89,15 @@
       array (
       ),
       'reference' => '56c89ac03c793de7774f5dc105192834480580ba',
+    ),
+    'nette/http' => 
+    array (
+      'pretty_version' => 'v4.0.x-dev',
+      'version' => '4.0.9999999.9999999-dev',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'ae82f9d5f1be916710bcaff6769465e977b68e5d',
     ),
     'nette/neon' => 
     array (
@@ -143,7 +152,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => '1706a345b22c8d0f251ac3f1aeaaf31d4f661e53',
+      'reference' => '43fbb3419a6688d0bc21bfecb17f79a3e002ffc0',
     ),
     'phpstan/phpstan' => 
     array (
@@ -153,7 +162,7 @@
       array (
         0 => '0.12.x-dev',
       ),
-      'reference' => 'd9b5997067126529fc0f2e1b7ad924e1ae56ef66',
+      'reference' => 'dd821ccda9484f0c23f8ecce20496769f400e9e1',
     ),
     'phpstan/phpstan-nette' => 
     array (

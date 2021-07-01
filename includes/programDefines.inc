@@ -34,10 +34,10 @@ const MAKE_ENTRY_KEY = "make_entry_key";
 const CONTINUEPROCESSING = 1;
 const MAKELABEL = "make_label";
 const MAKELABELVALUE = "make_label_value";
-const MAKEDESCRIPTION = "make_description";
 const MAKEDESCRIPTIONVALUE = "make_description_value";
 const MAKENEWDATAOBJECT = "make_new_data_object";
-const STORETAXONOMYKEY = "store_taxo_key";
+const MAKETAXONOMYKEY = "make_taxo_key";
+const TESTKEY = "test_key";
 
 //labels
 const FACTS = "facts";

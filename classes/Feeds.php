@@ -1,78 +1,81 @@
 <?php
 namespace JDApp;
+include '../vendor/autoload.php';
 
-	$myarr = json_decode(file_get_contents('myfile.json'));
+use Nette\Http\Request;
+use Nette\Http\UrlScript;
+//use Nette\Http\RequestFactory;
 
-$first = $myarr->cik;
-$obj1 = $myarr->units; //84
-$obj2 = $obj1->USD;  //82  array of stdclass objects
-if (is_array($obj2)) {
-echo "array\n";
-}
+//this works once then fails
+//$homedepot = file("https://data.sec.gov/api/xbrl/companyfacts/CIK0000354950.json");
+//file_put_contents('../data/allHomeDepotdata.json',$homedepot);
 
-if (is_object($obj1)) {
-	echo "true\n";
-}
+//nette preferred
+//can create with factory
+	//$factory = new RequestFactory;
+	//$httpRequest = $factory->fromGlobals();
 
-foreach ($obj2 as $item) {
+//home depot
+$url = "https://data.sec.gov/api/xbrl/companyfacts/CIK0000354950.json";
 
-	if ($item->form === $form) {
-		continue;
-	}
-	echo $item->end . "\t" . strval($item->val / 1000000) . " millions  " . $item->form . "\n";
-	$form = $item->form;
-	//echo $item->accn . "\n";
-	//echo $item->fy . "\n";
-	//echo $item->fp . "\n";
-	//echo $item->form . "\n";
-	//echo $item->filed . "\n";
+//lemonade
+$url2 = "https://data.sec.gov/api/xbrl/companyfacts/CIK0001691421.json";
 
 
-	$feed = "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&CIK=&type=&company=&dateb=&owner=include&start=0&count=40&output=atom";
+//below not working. need browser
+//create URL script object
+$urlObject = new UrlScript($url2);
 
+//request data with object
+$httpRequest = new Request($urlObject);							//this contacts the server. the object is just useful for methods
+$body = $httpRequest->getRawBody();      //???
+file_put_contents('../data/allLemonade_data.json',$body);
+
+//returns clone
+	//withUrl(Nette\Http\UrlScript $url): Nette\Http\Request
+
+//returns URLScript object
+	//$url = $httpRequest->getUrl();
+	//$body = $httpRequest->getRawBody();
+
+$headers = $httpRequest->getHeaders();
+var_dump($headers);
+
+
+
+//curl
+
+//packagist
+
+//javascript
+
+
+
+/*
+//examples
+
+//"https://data.sec.gov/api/xbrl/companyfacts/CIK##########.json"
 //$data=file("https://data.sec.gov/api/xbrl/companyconcept/CIK0001318605/us-gaap/AccountsPayableCurrent.json");
 //$alldata = file("https://data.sec.gov/api/xbrl/companyfacts/CIK0001318605.json");
-//file_put_contents('allTesladata.json',$alldata);
 	$mytesla = json_decode(file_get_contents('allTesladata.json'));
 
 //var_dump($mytesla);
 
 	$string = file_get_contents('allTesladata.json');
 	$arrT = explode(":", $string);
-//foreach($arrT as $s) {
-//	echo $s . "\n";
-//
-//}
+//fo
+	$myarr = json_decode(file_get_contents('myfile.json'));
 
-	$tobj1 = $mytesla->dei;  //object
-	$tobj2 = $tobj1->EntityCommonStockSharesOutstanding;
-	$tobj3 = $tobj2->units;
-	$tobj4 = $tobj3->shares;
 
-	if (is_object($tobj4)) {
-		echo "is object\n";
-	} elseif (is_array($tobj4)) {
-		echo " is array\n";
-	}
+//	$feed = "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&CIK=&type=&company=&dateb=&owner=include&start=0&count=40&output=atom";
 
-	$count = $operand1 = 0;
-//end,val,accn,fy,fp,form
-	foreach ($tobj4 as $obj) {
+//	"https://data.sec.gov/api/xbrl/companyfacts/CIK##########.json"
+//$data=file("https://data.sec.gov/api/xbrl/companyconcept/CIK0001318605/us-gaap/AccountsPayableCurrent.json");
+//$alldata = file("https://data.sec.gov/api/xbrl/companyfacts/CIK0001318605.json");
+//file_put_contents('allTesladata.json',$alldata);
+//	$mytesla = json_decode(file_get_contents('allTesladata.json'));
 
-		echo $obj->end . "\t" . "shares out: " . $obj->val . "\n";
-		$issued = $obj->val - $operand1;
-		echo "shares issued: " . $issued . "\n";
-		$operand1 = $obj->val;
-
-		//echo $obj->accn . "\n";
-		//echo $obj->fy . "\n";
-		//echo $obj->fp . "\n";
-		//echo $obj->form . "\n";
-		//sleep(1);
-		$count++;
-
-	}
-	echo "count: " . $count . "\n";
+//var_dump($mytesla);
 
 //$bulkdata = file("http://www.sec.gov/Archives/edgar/daily-index/xbrl/companyfacts.zip");
 //if ($size = file_put_contents('bulkdatafile.zip', $bulkdata)) {
@@ -85,12 +88,4 @@ foreach ($obj2 as $item) {
 //
 //}
 
-	$data = file_get_contents('companyfacts/CIK0001847462.json');
-	$info = explode("label", $data);
-
-	foreach ($info as $value) {
-		echo $value . "\n\n";
-		sleep(2);
-	}
-
-}
+*/

@@ -5,14 +5,32 @@ require_once "includes/programDefines.inc";
 use JDApp\FinancialRecord as Record;
 use JDApp\StateMachine as State;
 use JDApp\RecordBuilder as Builder;
+use JDApp\Activity;
 
+/*
+MIT LICENSE
+Copyright 2021 StarlightEnergies.com
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+and associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
+THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 
 /**
- * @purpose:    	Manages Storing SEC File data into mysql database
+ * @purpose:    	XBRL Report Processing Application
  * @filename:    	ProcessFiles.php
- * @version:    	1.0
- * @lastUpdate:  	2021-06-24
- * @author:        	James Danforth <james@workinout.com>
+ * @version:    	1.1
+ * @lastUpdate:  	2021-06-29
+ * @author:        	James Danforth <james@reemotex.com>
  * @pattern:
  * @since:    		2021-06-24
  * @controller:
@@ -32,11 +50,7 @@ class ProcessFiles {
 	public object $State;
 	public object $Label;
 	public object $Builder;
-
-
-	private const CHAR_TIME = 5;
-	private const BRACE_TIME = 10;
-	private const BRACKET_TIME = 15;
+	public object $Activity;
 
 	public function __construct($file) {
 		$this->currentFile = $file;
@@ -45,7 +59,7 @@ class ProcessFiles {
 		$this->State->record_id = Record::$record_id;
 		$this->Label = new Labels(HEADER, $this->Record, $this->State);
 		$this->Builder = new Builder($this->State);
-
+		$this->Activity = new Activity($this->Record);			//NEW TODO may need to setup object in reportproc. and terms too.
 	}
 
 	public function createFileHandle($m): object {
@@ -75,26 +89,36 @@ class ProcessFiles {
 				break;
 			case '}':
 				$StateM->key = RIGHTBRACE;
-				$result = $StateM->handleRightBrace();
+				$result = $StateM->handleRightBrace($Recd,$Build);
 				if ($result == 1 && $StateM->datatype == ENTRY) {
 					$Build->processEntry($Recd, $c);
+				} elseif ($result == 1 && $StateM->datatype == HEADER) {
+					$Build->processHeader($Recd, $c);
 				}
 				break;
 			case '"':
 				$StateM->key = DOUBLEQUOTE;
 				$result = $StateM->handleQuotes();                    //always returns a GETNEXTCHAR
+
 				break;
 			case ':':
 				$StateM->key = COLON;
-				$result = $StateM->handleColon();                    //should always return MAKEVALUE
+				$result = $StateM->handleColon();
+				if ($result == 1 && $StateM->datatype == DATA) {
+					$Build->processData($Recd, $c);
+				}
 				break;
 			case ',':
 				$StateM->key = COMMA;
-				$result = $StateM->handleComma();
+				$result = $StateM->handleComma($Build);
 				if ($result == 1 && $StateM->datatype == HEADER) {
 					$Build->processHeader($Recd, $c);
 				} elseif ($result == 1 && $StateM->datatype == DATA) {
-					$Build->processData($Recd, $c);
+					$result2 = $Build->processData($Recd, $c);			//checking if need to build new data object
+					if($result2 == 1) {
+						//go back again and build object
+						$Build->processHeader($Recd, $c);				//builds new datatype
+					}
 				} elseif ($result == 1 && $StateM->datatype == ENTRY) {
 					$Build->processEntry($Recd, $c);
 				}
@@ -113,6 +137,10 @@ class ProcessFiles {
 					$Build->processEntry($Recd, $c);
 				}
 				break;
+			case '\\':
+				$StateM->key = BACKSLASH;
+				$result = $StateM->handleBackSlash();
+				break;
 			case '\n':
 				break;
 			default:
@@ -127,141 +155,8 @@ class ProcessFiles {
 				}
 		}
 
-		$this->displayActivity($c, $StateM, $Recd);
+		$this->Activity->displayActivity($c, $StateM, $Recd,$Build);
 		return $result;
 	}
 
-
-	 public function displayActivity($c, $S, $R) {
-
-
-		echo "Company: " . $R->company_name . "\t";
-		echo "CIK: " . $R->cik . "\t";
-		echo "Key Name: " . $R->key_name . "\t";
-		echo "Key Value: " . $R->key_value . "\n\n";
-
-		echo "Datastore count: " . count($R->dataStore) . "\t";
-		echo "Current Data ID: " . $R->currentObjectId . "\t";
-		if (count($R->dataStore) > 0) {
-			$data_id = $R->currentObjectId;
-			$data = $R->dataStore[$data_id];
-			$type = $data->data_type;
-			echo "Data Taxonomy: " . $data->taxonomy . "\t";
-			echo "Data Object Type: " . $type . "\t";
-			echo "Data Units Type: " . $data->data_units . "\n";
-			echo "Data Label Value: " . $data->label . "\n";
-			echo "Data Description: " . $data->description . "\n";  //this is really long string so separate line
-			echo "Data Complete Status: " . $data->completion_status . "\n";
-
-			if (count($data->entryStore) > 0) {
-				echo "Recordstore count: " . count($data->entryStore) . "\t";
-				echo "Current Entry ID: " . $data->currentEntryId . "\t";
-				$entry = $data->entryStore[$data->currentEntryId];
-				echo "Entry Object Type: " . $entry->name . "\n";
-				echo "Entry Key: " . $entry->current_key . "\t";
-				echo "Entry Value: " . $entry->current_value . "\t";
-				echo "Total Entry KeyVals: " . count($entry->values) . "\n";
-			} else {
-
-				echo "\n";
-			}
-		} else {
-
-			echo "\n";
-		}
-
-		echo "Current Task: " . $S->task . "\t";
-		echo "Data Type: " . $S->datatype . "\t";
-		echo "State->key: " . $S->key . "\t";
-		if ($c != "\n") {
-			echo "character: " . $c . "\n";
-		}
-
-		echo "character count: " . $S->char_id . "\t";
-		echo "brace count: " . $S->braces . "\t";
-		echo "colon count: " . $S->colon . "\t";
-		echo "quote count: " . $S->quotes . "\t";
-		echo "Bracket Flag: " . $S->bracket . "\t";
-		echo "Entry Flag: " . $S->entry_flag . "\n\n\n";
-
-
-
-		 $theD = function ($R, $S) {
-			$d = $R->dataStore;
-			foreach ($d as $key => $data) {
-				echo $key . " val: " . $data->data_type . " and entries: " . count($data->entryStore) .
-					" and units: " . $data->data_units . "\n";
-
-				$entries = $data->entryStore;
-				foreach ($entries as $key => $ent) {
-					$vals = $ent->values;
-					echo "\n";
-					echo "file point char: " . $S->char_id . "\n";
-					echo "data type field size: " . strlen($data->data_type) . "\n";
-
-					foreach ($vals as $key2 => $values) {
-						echo "entry key: " . $key2 . " entry val: " . $values . "\n";
-						if (!preg_match("/[A-Z0-9\-]/", $values)) {
-							echo "weird character\n";
-							sleep(5);
-						}
-					}
-				}
-
-			}
-		};
-
-		if ($c == '}'|| $c == '{') {
-			sleep(self::BRACE_TIME);
-		}
-		if ($c == ']') {
-			//$theD($R, $S);						//dont need a moment
-			sleep(self::BRACKET_TIME);
-		}
-		if ($S->char_id > 6000) {
-			sleep(self::CHAR_TIME);
-		} else {
-			sleep(0);
-		}
-
-	}
-
-
 }
-
-/*
-
-function buildRecord($char, $State, $Record)
-{
-	$State->statusMessage();
-	switch ($State->key) {
-
-		case LEFTBRACE:
-			$results = $State->handleLeftBrace();
-			break;
-		case RIGHTBRACE:
-			$results = $State->handleRightBrace();
-			break;
-		case DOUBLEQUOTE:
-			$results = $State->handleQuotes();
-			break;
-		case COLON:
-			$results = $State->handleColon();
-			break;
-		case COMMA:
-			$results = $State->handleComma();
-			break;
-		case LEFTBRACKET:
-			$results = $State->handleLeftBracket();
-			break;
-		case RIGHTBRACKET:
-			$results = $State->handleRightBracket();
-			break;
-		case BACKSLASH:
-			$results = $State->handleBackSlash();
-			break;
-		default:
-			$results = $State->handleDefault();
-	}
-
-*/

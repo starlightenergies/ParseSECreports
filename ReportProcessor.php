@@ -4,13 +4,30 @@ use JDApp\ProcessFiles as Files;
 include "vendor/autoload.php";
 require_once "includes/programDefines.inc";
 
+/* MIT LICENSE
+Copyright 2021 StarlightEnergies.com
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+and associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
+THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 
 /**
- * @purpose:    	Report Processing Application
+ * @purpose:    	XBRL Report Processing Application
  * @filename:    	ReportProcessor.php
  * @version:    	1.0
- * @lastUpdate:  	2021-06-24
- * @author:        	James Danforth <james@workinout.com>
+ * @lastUpdate:  	2021-06-29
+ * @author:        	James Danforth <james@reemotex.com>
  * @pattern:
  * @since:    		2021-06-24
  * @controller:
@@ -29,6 +46,14 @@ require_once "includes/programDefines.inc";
 //read directory to get file names
 //process them one at a time through loop
 
+//boost memory allocated by php
+$option = 'memory_limit';
+$value = '4096M';
+$oldMem = ini_set($option, $value);
+echo "new memory alloc: " . $value . "\n";
+echo "old memory alloc: " . $oldMem . "\n";
+sleep(3);
+
 $filestore = [];
 $dir = __DIR__ . '/data';
 echo $dir;
@@ -39,7 +64,8 @@ if ($dirHandle = opendir($dir)) {
 
 while ($file = readdir($dirHandle)) {
 
-		if ($file == '.' || $file == '..') {
+		if ($file == '.' || $file == '..'||preg_match("/.save$/", $file)
+			||preg_match("/.bak$/", $file) ) {
 			continue;
 		}
 
@@ -50,7 +76,11 @@ while ($file = readdir($dirHandle)) {
 }
 closedir($dirHandle);
 
-//filestore has filename and ProcessFile Object
+echo "found " . count($filestore) . " files\n";
+sleep(3);
+
+//filestore has filename and ProcessFile Object and
+//each of these holds the complete financial record of the file processes, (intuit, tesla etc)
 foreach ($filestore as $file_obj) {
 
 	//create a file object from the filename with processFile object .. synced
@@ -64,8 +94,12 @@ foreach ($filestore as $file_obj) {
 			$type = $file_obj->examineCharacter($char);						//process character with processFile object
 		}
 	}
-
 }
+
+
+//reset memory allocated by php
+$value = $oldMem;
+ini_set($option, $value);
 
 /*
 foreach ($filestore as $file) {

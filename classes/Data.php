@@ -1,6 +1,39 @@
 <?php
 namespace JDApp;
 
+/* MIT LICENSE
+Copyright 2021 StarlightEnergies.com
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+and associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
+THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+/**
+ * @purpose:    	XBRL Report Processing Application
+ * @filename:    	Data.php
+ * @version:    	1.00
+ * @lastUpdate:  	2021-06-28
+ * @author:        	James Danforth <james@reemotex.com>
+ * @pattern:
+ * @since:    		2021-06-24
+ * @controller:
+ * @view:
+ * @delegates:
+ * @inheritsFrom:
+ * @inheritsTo:
+ * @comment: 		Data stores Entries by data type for storage in Record class store
+ */
+
 
 class Data {
 
@@ -44,8 +77,8 @@ class Data {
 
 	public function updateCompletionStatus(): int {
 
-		// when this reaches 7 then a new data object can be started
-		//taxonomy, type, units, label, description, entries, curr_id
+		// when this reaches 6 then a new data object can be started
+		//taxonomy, type, label, description, entries, object
 		return $this->completion_status += 1;
 	}
 

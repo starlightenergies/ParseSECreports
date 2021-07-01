@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2edd00225ee8325c7828b599aa54be18",
+    "content-hash": "df16d726a9766f93e2cb4f2f6660db05",
     "packages": [
         {
             "name": "nette/caching",
@@ -145,17 +145,95 @@
             "time": "2021-03-16T01:06:08+00:00"
         },
         {
+            "name": "nette/http",
+            "version": "v4.0.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nette/http.git",
+                "reference": "ae82f9d5f1be916710bcaff6769465e977b68e5d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nette/http/zipball/ae82f9d5f1be916710bcaff6769465e977b68e5d",
+                "reference": "ae82f9d5f1be916710bcaff6769465e977b68e5d",
+                "shasum": ""
+            },
+            "require": {
+                "nette/utils": "^3.1",
+                "php": ">=7.1"
+            },
+            "conflict": {
+                "nette/di": "<3.0.3"
+            },
+            "require-dev": {
+                "nette/di": "^3.0",
+                "nette/security": "^3.0",
+                "nette/tester": "^2.0",
+                "phpstan/phpstan": "^0.12",
+                "tracy/tracy": "^2.4"
+            },
+            "suggest": {
+                "ext-fileinfo": "to detect type of uploaded files",
+                "nette/security": "allows use Nette\\Http\\UserStorage"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.0-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause",
+                "GPL-2.0-only",
+                "GPL-3.0-only"
+            ],
+            "authors": [
+                {
+                    "name": "David Grudl",
+                    "homepage": "https://davidgrudl.com"
+                },
+                {
+                    "name": "Nette Community",
+                    "homepage": "https://nette.org/contributors"
+                }
+            ],
+            "description": "🌐 Nette Http: abstraction for HTTP request, response and session. Provides careful data sanitization and utility for URL and cookies manipulation.",
+            "homepage": "https://nette.org",
+            "keywords": [
+                "cookies",
+                "http",
+                "nette",
+                "proxy",
+                "request",
+                "response",
+                "security",
+                "session",
+                "url"
+            ],
+            "support": {
+                "issues": "https://github.com/nette/http/issues",
+                "source": "https://github.com/nette/http/tree/master"
+            },
+            "time": "2020-06-16T22:23:29+00:00"
+        },
+        {
             "name": "nette/utils",
             "version": "v3.2.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/utils.git",
-                "reference": "1706a345b22c8d0f251ac3f1aeaaf31d4f661e53"
+                "reference": "43fbb3419a6688d0bc21bfecb17f79a3e002ffc0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/utils/zipball/1706a345b22c8d0f251ac3f1aeaaf31d4f661e53",
-                "reference": "1706a345b22c8d0f251ac3f1aeaaf31d4f661e53",
+                "url": "https://api.github.com/repos/nette/utils/zipball/43fbb3419a6688d0bc21bfecb17f79a3e002ffc0",
+                "reference": "43fbb3419a6688d0bc21bfecb17f79a3e002ffc0",
                 "shasum": ""
             },
             "require": {
@@ -227,7 +305,7 @@
                 "issues": "https://github.com/nette/utils/issues",
                 "source": "https://github.com/nette/utils/tree/v3.2"
             },
-            "time": "2021-04-22T16:22:43+00:00"
+            "time": "2021-06-28T13:14:58+00:00"
         }
     ],
     "packages-dev": [
@@ -775,12 +853,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "d9b5997067126529fc0f2e1b7ad924e1ae56ef66"
+                "reference": "dd821ccda9484f0c23f8ecce20496769f400e9e1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/d9b5997067126529fc0f2e1b7ad924e1ae56ef66",
-                "reference": "d9b5997067126529fc0f2e1b7ad924e1ae56ef66",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/dd821ccda9484f0c23f8ecce20496769f400e9e1",
+                "reference": "dd821ccda9484f0c23f8ecce20496769f400e9e1",
                 "shasum": ""
             },
             "require": {
@@ -832,7 +910,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-06-18T14:14:54+00:00"
+            "time": "2021-06-29T09:27:53+00:00"
         },
         {
             "name": "phpstan/phpstan-nette",
@@ -976,7 +1054,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "nette/http": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
