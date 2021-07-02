@@ -289,7 +289,9 @@ class RecordBuilder {
 			//	echo "new key: " . $R->key_name . "\n";						into its own method "testunits" or similar method TODO
 				$R->key_name = '';
 			}
-	}
+
+
+	} //end of class
 
 
 	public function updateKey($R, $c) {
