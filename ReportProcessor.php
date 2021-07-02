@@ -26,7 +26,7 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @purpose:    	XBRL Report Processing Application
  * @filename:    	ReportProcessor.php
  * @version:    	1.0
- * @lastUpdate:  	2021-06-29
+ * @lastUpdate:  	2021-07-01
  * @author:        	James Danforth <james@reemotex.com>
  * @pattern:
  * @since:    		2021-06-24
@@ -40,19 +40,18 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 
-//get stock symbols from from database
-//build curl or http request for all file data
-//store datafiles in directory
-//read directory to get file names
-//process them one at a time through loop
+//get stock symbols from from database  //TODO
+//build curl or http request for all file data -- may need SEC API //TODO
+//store datafiles in directory	//TODO
+
+//read directory to get file names -- below
+//process them one at a time through loop -- below
 
 //boost memory allocated by php
 $option = 'memory_limit';
 $value = '4096M';
 $oldMem = ini_set($option, $value);
-echo "new memory alloc: " . $value . "\n";
-echo "old memory alloc: " . $oldMem . "\n";
-sleep(3);
+
 
 $filestore = [];
 $dir = __DIR__ . '/data';

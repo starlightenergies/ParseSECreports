@@ -120,6 +120,10 @@ class RecordBuilder {
 							$StateM->task = MAKENEWDATAOBJECT;
 							$this->data_type_flag = 1;            //its almost always the first to be created after obj created
 							$result = CONTINUEPROCESSING;        //causes return to build in Header Loop below...
+							if($curr_data->completion_status > 6) {
+								echo $StateM->char_id . " has problem with data complete flag\n";
+								sleep(20);
+							}
 
 						} else {
 							$StateM->task = MAKEKEY;
@@ -235,6 +239,7 @@ class RecordBuilder {
 						break;
 					case 'shares':
 					case 'USD':
+					case 'USD/shares':
 					case 'sqft':
 					case 'pure':
 					case 'D':
@@ -246,8 +251,11 @@ class RecordBuilder {
 						$result = $curr_object->setTaxonomy($R->key_name);            //update with correct taxonomy
 						$R->key_name = '';
 						$this->data_type_flag = $result;     //flag that next key is data type
-						echo "setup new taxo key here\n";
-						//sleep(30);
+						break;
+					case 'invest':  //if braces == 2 then key will be taxo key -- TODO
+						$result = $curr_object->setTaxonomy($R->key_name);            //update with correct taxonomy
+						$R->key_name = '';
+						$this->data_type_flag = $result;     //flag that next key is data type
 						break;
 					default:
 						$curr_object->data_type = $R->key_name;
@@ -292,9 +300,9 @@ class RecordBuilder {
 		$R->key_name = ltrim($key);
 
 		//alert if big key length
-		if($size = strlen($R->key_name) > 100 ){
-			echo $R->key_name . " in " .  $R->company_name . "\nis size: " . $size . "\n";
-			sleep(5);
+		if(strlen($R->key_name) > 130 ){
+			echo $R->key_name . " in " .  $R->company_name . "\nis size: " . strlen($R->key_name) . "\n";
+			sleep(1);
 		}
 	}
 
@@ -306,9 +314,9 @@ class RecordBuilder {
 		$R->key_value = ltrim($value);
 
 		//alert if big key length
-		if($size = strlen($R->key_value) > 1000 ){
-			echo $R->key_value . " in " .  $R->company_name . " \nis size: " . $size . "\n";
-			sleep(5);
+		if(strlen($R->key_value) > 1500 ){
+			echo $R->key_value . " in " .  $R->company_name . " \nis size: " . strlen($R->key_value) . "\n";
+			sleep(1);
 		}
 	}
 

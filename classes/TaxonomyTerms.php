@@ -22,7 +22,7 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @purpose:    	XBRL Report Processing Application
  * @filename:    	TaxonomyTerms.php
  * @version:    	1.50
- * @lastUpdate:  	2021-06-29
+ * @lastUpdate:  	2021-07-01
  * @author:        	James Danforth <james@reemotex.com>
  * @pattern:
  * @since:    		2021-06-24

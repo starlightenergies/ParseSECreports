@@ -26,10 +26,10 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @purpose:    	XBRL Report Processing Application
  * @filename:    	Activity.php
  * @version:    	1.0
- * @lastUpdate:  	2021-06-29
+ * @lastUpdate:  	2021-07-01
  * @author:        	James Danforth <james@reemotex.com>
  * @pattern:
- * @since:    		2021-06-29
+ * @since:    		2021-06-24
  * @controller:
  * @view:
  * @mytodo:
@@ -44,7 +44,7 @@ class Activity {
 
 	private const CHAR_TIME = 2;
 	private const BRACE_TIME = 0;
-	private const BRACKET_TIME = 0;
+	private const BRACKET_TIME = 15;
 	private object $taxoTerms;
 	private object $Rec;
 
@@ -151,9 +151,11 @@ class Activity {
 		};
 
 		if (preg_match("/^Tesla.*$/",$R->company_name)) {
-			$FilePace($R,$S,2210975,$c);
+			$FilePace($R, $S, 2210975, $c);
+		} elseif(preg_match("/^Carnival.*$/",$R->company_name)) {
+			$FilePace($R, $S, 229250, $c);
  		} else {
-			$FilePace($R,$S,0,$c);
+			$FilePace($R,$S,30000000,$c);
 		}
 	}
 }
