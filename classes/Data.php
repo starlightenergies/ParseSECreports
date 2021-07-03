@@ -39,7 +39,7 @@ class Data {
 
 	public int $id;
 	public string $taxonomy;
-	public static int $data_id = 0;
+	public static int $data_id = 1;
 	public string $data_type;
 	public string $data_units;
 	public string $label;
@@ -51,7 +51,7 @@ class Data {
 
 	public function __construct($taxo) {
 		$this->taxonomy = $taxo;
-		$this->id = 1 + DATA::$data_id++;
+		$this->id = DATA::$data_id++;
 		$this->data_type = '';
 		$this->data_units = '';
 		$this->label = '';

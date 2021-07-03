@@ -73,7 +73,7 @@ class RecordBuilder {
 				$StateE->task = MAKEKEY;
 				break;
 			default:
-				echo NEEDSWORK . $StateE->char_id . "\n";
+				echo "needs work in entry loop " . $StateE->char_id . "\n";
 				sleep(3600);
 		}
 	}
@@ -90,7 +90,7 @@ class RecordBuilder {
 				$this->updateKey($Record, $char);
 				break;
 			case TESTKEY:											//always called by the COLON since key complete then
-				$this->testKey($Record, $TermsT);
+				$this->testKey($Record, $TermsT,$StateM);
 				$StateM->task = MAKEVALUE;							//then hand back control to COLON
 				break;
 			case MAKEVALUE:
@@ -133,6 +133,8 @@ class RecordBuilder {
 						}
 						break;
 					default:
+						echo "needs work in data loop " . $StateM->char_id . "\n";
+						sleep(3600);
 				}
 				break;
 			default:
@@ -142,10 +144,10 @@ class RecordBuilder {
 
 	public function processHeader($Record, $char) {
 
-		$State = $this->State;
+		$StateH = $this->State;
 		//$TermsT = $this->Terms;
 
-		switch ($State->task) {
+		switch ($StateH->task) {
 			case MAKEKEY:
 				$this->updateKey($Record, $char);
 				break;
@@ -154,12 +156,12 @@ class RecordBuilder {
 				$this->updateValue($Record, $char);
 				break;
 			case MAKENEWDATAOBJECT:
-				$State->datatype = DATA;
+				$StateH->datatype = DATA;
 				//test for state to see if taxo key coming next
-				if ($State->braces == 1 && $this->data_type_flag == 1) {
-					$State->task = MAKETAXONOMYKEY;                     //tests if next key is taxo key
+				if ($StateH->braces == 1 && $this->data_type_flag == 1) {
+					$StateH->task = MAKETAXONOMYKEY;                     //tests if next key is taxo key
 				} else {
-					$State->task = MAKEKEY;                                //next key will be data type key
+					$StateH->task = MAKEKEY;                                //next key will be data type key
 				}
 				$currentObject = $Record->currentObjectId;
 				$data = $Record->dataStore[$currentObject];
@@ -175,8 +177,8 @@ class RecordBuilder {
 						$Record->header[] = $header;
 						$Record->key_name = '';
 						$Record->key_value = '';
-						$this->Terms = new Terms($Record->cik);                            //NEW LOGIC METHOD TODO and Test
-						$State->task = MAKEKEY;
+						$this->Terms = new Terms($Record->cik);       //compare to other instantiation may not needNEW LOGIC METHOD TODO and Test
+						$StateH->task = MAKEKEY;
 						break;
 					case COMPANY_NAME:
 						$Record->company_name = $Record->key_value;
@@ -184,26 +186,29 @@ class RecordBuilder {
 						$Record->header[] = $header;
 						$Record->key_name = '';
 						$Record->key_value = '';
-						$State->task = MAKEKEY;
+						$StateH->task = MAKEKEY;
 						break;
+					case IFRS_TYPE:
+					case IFRS_FULL_TYPE:
+					case SRT_TYPE;
+					case US_GAAP_TYPE:										//new lame TODO
 					case DOC_ENTITY_TYPE:
-						$State->datatype = DATA;
-						$State->task = CREATEDATAOBJ;
-						$Record->createDataObject(DOC_ENTITY_TYPE);
+						$StateH->datatype = DATA;
+						$StateH->task = CREATEDATAOBJ;
+						$Record->createDataObject($Record->key_name);
 						$header[$Record->key_name] = $Record->key_value;                //???TODO
 						$Record->header[] = $header;
 						$Record->key_name = '';
 						$Record->key_value = '';
-						$State->task = MAKEKEY;
+						$StateH->task = MAKEKEY;
 						break;
 					case FACTS:
 						$Record->key_name = '';
-						$State->task = MAKEKEY;
+						$StateH->task = MAKEKEY;
 						break;
-					//case "ifrs":
-					//case "srt":
+
 					default:
-						echo NEEDSWORK . $State->char_id . "\n";
+						echo "needs work in header loop " . $StateH->char_id . "\n";
 						sleep(3600);
 				}
 				break;
@@ -213,85 +218,154 @@ class RecordBuilder {
 
 	}
 
-	public function testKey($R, $terms) {
+	public function testKey($R, $terms,$S) {
 
 		//R is Record object, terms is Taxonomy Keys class (dictionary of terms)
+		//$S is the StateMachine object
 		//terms initialized when CIK found so could be null
 
 		$data_id = $R->currentObjectId;
 		if ($data_id >= 0) {
 			$curr_object = @$R->dataStore[$data_id];                 //could use switch for data_units etc
 		}
+
+		//get taxonomy terms DB so they can be matched against keys found
+		//and assigned to the right properties
 		$dataTermsArray = $terms->getDataTerms();
 		$headerTermsArray = $terms->getHeaderTerms();
 
-			if (in_array($R->key_name, $dataTermsArray) || in_array($R->key_name, $headerTermsArray)) {
+		//units of measure keys never appear until left brace count is 4 or 5.
+		if ($S->braces > 3 && $S->braces < 6) {
+
+			//routine one checks only units of measure terms
+			$this->checkUnitOfMeasureKeys($R, $curr_object, $terms);
+
+			//write updates to file
+			if(!$terms->updateTermsDatabase()) {
+				echo "Terms not written to database at: " . $S->char_id . "\n";
+				sleep(60);
+			}
+
+		}
+
+		//these keys never appear until left brace count is 3 or more.
+		if ($S->braces > 2) {
+			//routine one checks only data terms
+			if (in_array($R->key_name, $dataTermsArray)) {
 				switch ($R->key_name) {
-					case 'label':
-						break;
+					case 'label':										//need to move to own array TODO
 					case 'description':
-						break;
 					case 'facts':
 						break;
-					case 'units':
+					case 'units':										//next step is to breakout units and data TODO
 						$this->unit_flag = 1;                                //flag can be useful
 						$R->key_name = '';
 						break;
-					case 'shares':
-					case 'USD':
-					case 'USD/shares':
-					case 'sqft':
-					case 'pure':
-					case 'D':
-						$curr_object->data_units = $R->key_name;
-						$this->unit_flag = 0;
-						$R->key_name = '';
-						break;
-					case 'us-gaap':
-						$result = $curr_object->setTaxonomy($R->key_name);            //update with correct taxonomy
-						$R->key_name = '';
-						$this->data_type_flag = $result;     //flag that next key is data type
-						break;
-					case 'invest':  //if braces == 2 then key will be taxo key -- TODO
-						$result = $curr_object->setTaxonomy($R->key_name);            //update with correct taxonomy
-						$R->key_name = '';
-						$this->data_type_flag = $result;     //flag that next key is data type
-						break;
 					default:
 						$curr_object->data_type = $R->key_name;
-						$curr_object->updateCompletionStatus();							//typically #3 of 6
+						$curr_object->updateCompletionStatus();                            //typically #3 of 6
 						$R->key_name = '';
-						$curr_object->data_change_flag = 0;
+						$curr_object->data_change_flag = 0;				//use it or lose it TODO
 						$this->data_type_flag = 0;
-				}                                                            //else if in other terms groups TODO
-				//$R->key_name = '';                                        //switch units, etc to ignore and use
-				//key found
+				}
+
 			} elseif ($this->data_type_flag == 1) {
 
-				//we have a new taxonomy datatype. need to use and store
-				$curr_object->data_type = $R->key_name;
-				//add term to database
-				$terms->addDataTerm($R->key_name);
-				//update database file
-				$terms->updateTermsDatabase();										//new TODO watch frequency drops as db increases
-				//update tracker
-				$curr_object->updateCompletionStatus();
-				$R->key_name = '';
-				$curr_object->data_change_flag = 0;
-				$this->data_type_flag = 0;
+				$this->updateDataTypeField($curr_object,$terms, $R);
 
-			} elseif($this->unit_flag == 1) {
-				//update units first
-				$curr_object->data_units = $R->key_name;
-				$this->unit_flag = 0;
-				//then add term to database									//needs to be units array soon in taxo TODO
-			//	$terms->addDataTerm($R->key_name);							cant add to database until breakout units check above
-			//	echo "new key: " . $R->key_name . "\n";						into its own method "testunits" or similar method TODO
+			} elseif(empty($curr_object->data_units) && $S->braces == 3) {
+
+				$this->updateDataTypeField($curr_object,$terms, $R);
+			}
+		}
+
+			// new routine below checks only header and taxonomy terms //TODO this may be messed up
+			//but the Header Loop will never get into this method so far...
+			// can use left brace count to make decisions here - 100% reliable
+			// 1st left brace happens at begin/end of file and marks beginning of header
+			// 2nd left brace marks beginning of taxonomy type. DEI is often this type
+			// may need to handle braces at end of file but i think key name empty then so default is to ignore
+
+		if ($S->braces <= 2) {			//need separate test for braces == 1 since new header properties could appear TODO
+			if (in_array($R->key_name, $headerTermsArray)) {
+				switch ($R->key_name) {
+					case US_GAAP_TYPE:
+					case INVEST_TYPE:
+					case IFRS_TYPE:
+					case SRT_TYPE:
+						$result = $curr_object->setTaxonomy($R->key_name);     	//update taxonomy change (DEI is default)
+						$R->key_name = '';
+						$this->data_type_flag = $result;     					//flag that next key is always a data type
+						break;
+					default:
+				}
+			} else {
+				//need to add to taxonomy database and set taxonomy property
+				//update object first
+				$result = $curr_object->setTaxonomy($R->key_name);     	//update taxonomy change (DEI is default)
+				$R->key_name = '';
+				$this->data_type_flag = $result;     					//flag that next key is always a data type
+				//then update taxonomy database
+				$terms->addHeaderTerm($R->key_name);
 				$R->key_name = '';
 			}
+		}
 
+	} //end of method
 
-	} //end of class
+	private function checkUnitOfMeasureKeys($R, $dataobject, $terms) {
+
+		//this method called from testKeys() method above
+		$UOMArray = $terms->getMeasureTerms();
+
+		if (in_array($R->key_name, $UOMArray)) {
+			switch ($R->key_name) {
+				case 'shares':
+				case 'USD':
+				case 'EUR':
+				case 'USD/shares':
+				case 'sqft':
+				case 'pure':
+				case 'D':
+					$dataobject->data_units = $R->key_name;
+					$this->unit_flag = 0;
+					$R->key_name = '';
+					break;
+				default:
+					$dataobject->data_units = $R->key_name;
+					$R->key_name = '';
+					$this->unit_flag = 0;
+			}
+
+		} elseif ($this->unit_flag == 1) {
+			//update units first
+			$dataobject->data_units = $R->key_name;
+			//then add term to database
+			$terms->addMeasureTerm($R->key_name);
+			//then reset vars
+			$R->key_name = '';
+			$this->unit_flag = 0;
+
+		}
+
+	}
+
+	private function updateDataTypeField($dataobj,$terms, $Rec) {
+
+		//we have a new taxonomy datatype. need to use and store
+		//called from testKey() method above
+		$dataobj->data_type = $Rec->key_name;
+		//add term to database
+		$terms->addDataTerm($Rec->key_name);
+		//update database file
+		$terms->updateTermsDatabase();
+		//update tracker
+		$dataobj->updateCompletionStatus();
+		$Rec->key_name = '';
+		$dataobj->data_change_flag = 0;
+		$this->data_type_flag = 0;
+
+	}
 
 
 	public function updateKey($R, $c) {
@@ -605,5 +679,73 @@ function updateEntryKey($R, $c)
 				}                                                            //else if in other terms groups TODO
 				//$R->key_name = '';                                        //switch units, etc to ignore and use
 				//key found
+
+//old Routine for TestKey below (before split into two )
+	if (in_array($R->key_name, $dataTermsArray) || in_array($R->key_name, $headerTermsArray)) {
+				switch ($R->key_name) {
+					case 'label':
+						break;
+					case 'description':
+						break;
+					case 'facts':
+						break;
+					case 'units':
+						$this->unit_flag = 1;                                //flag can be useful
+						$R->key_name = '';
+						break;
+					case 'shares':
+					case 'USD':
+					case 'USD/shares':
+					case 'sqft':
+					case 'pure':
+					case 'D':
+						$curr_object->data_units = $R->key_name;
+						$this->unit_flag = 0;
+						$R->key_name = '';
+						break;
+					case 'us-gaap':
+						$result = $curr_object->setTaxonomy($R->key_name);            //update with correct taxonomy
+						$R->key_name = '';
+						$this->data_type_flag = $result;     //flag that next key is data type
+						break;
+					case 'invest':  //if braces == 2 then key will be taxo key -- TODO
+						$result = $curr_object->setTaxonomy($R->key_name);            //update with correct taxonomy
+						$R->key_name = '';
+						$this->data_type_flag = $result;     //flag that next key is data type
+						break;
+					default:
+						$curr_object->data_type = $R->key_name;
+						$curr_object->updateCompletionStatus();							//typically #3 of 6
+						$R->key_name = '';
+						$curr_object->data_change_flag = 0;
+						$this->data_type_flag = 0;
+				}                                                            //else if in other terms groups TODO
+				//$R->key_name = '';                                        //switch units, etc to ignore and use
+				//key found
+			} elseif ($this->data_type_flag == 1) {
+
+				//we have a new taxonomy datatype. need to use and store
+				$curr_object->data_type = $R->key_name;
+				//add term to database
+				$terms->addDataTerm($R->key_name);
+				//update database file
+				$terms->updateTermsDatabase();										//new TODO watch frequency drops as db increases
+				//update tracker
+				$curr_object->updateCompletionStatus();
+				$R->key_name = '';
+				$curr_object->data_change_flag = 0;
+				$this->data_type_flag = 0;
+
+			} elseif($this->unit_flag == 1) {
+				//update units first
+				$curr_object->data_units = $R->key_name;
+				$this->unit_flag = 0;
+				//then add term to database									//needs to be units array soon in taxo TODO
+			//	$terms->addDataTerm($R->key_name);							cant add to database until breakout units check above
+			//	echo "new key: " . $R->key_name . "\n";						into its own method "testunits" or similar method TODO
+				$R->key_name = '';
+			}
+
+
 
 */

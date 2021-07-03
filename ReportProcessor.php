@@ -70,14 +70,19 @@ while ($file = readdir($dirHandle)) {
 
 		$file = $dir . "/" . $file;
 		$fileProc = new Files($file);
-		array_push($filestore,$fileProc);
-
+		//array_push($filestore,$fileProc);			was using
+		//all NEW Below
+		$SPL_file_object = $fileProc->createFileHandle('r');
+		while (!$SPL_file_object->eof()) {
+			$char = $SPL_file_object->fgetc();										//get character from file object
+			$type = $fileProc->examineCharacter($char);						//process character with processFile object
+		}
 }
 closedir($dirHandle);
 
 echo "found " . count($filestore) . " files\n";
 sleep(3);
-
+/*
 //filestore has filename and ProcessFile Object and
 //each of these holds the complete financial record of the file processes, (intuit, tesla etc)
 foreach ($filestore as $file_obj) {
@@ -94,6 +99,7 @@ foreach ($filestore as $file_obj) {
 		}
 	}
 }
+*/
 
 
 //reset memory allocated by php

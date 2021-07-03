@@ -22,7 +22,7 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @purpose:    	XBRL Report Processing Application
  * @filename:    	TaxonomyTerms.php
  * @version:    	1.50
- * @lastUpdate:  	2021-07-01
+ * @lastUpdate:  	2021-07-02
  * @author:        	James Danforth <james@reemotex.com>
  * @pattern:
  * @since:    		2021-06-24
@@ -52,6 +52,7 @@ class TaxonomyTerms {
 		//create data types
 		$this->header_terms = $theArrays[0];
 		$this->data_type_terms = $theArrays[1];
+		$this->units_type_terms = $theArrays[2];
 	}
 
 	public function deleteTerm($term,$cik) {
@@ -68,12 +69,30 @@ class TaxonomyTerms {
 
 	public function addDataTerm($term) {
 
-		$this->data_type_terms[] = $term;					//need to test if updated TODO
+		$this->data_type_terms[] = $term;
 		if(in_array($term,	$this->data_type_terms)) {
 			echo "new term " . $term . " added to db\n";
-			//sleep(15);
 		}
 
+	}
+
+	public function addHeaderTerm($term) {
+
+		$this->header_terms[] = $term;
+		if(in_array($term,	$this->header_terms)) {
+			echo "new term " . $term . " added to db\n";
+			//should log these kinds of things too TODO
+		}
+	}
+
+
+	public function addMeasureTerm($term) {
+
+		$this->units_type_terms[] = $term;
+		if(in_array($term,	$this->units_type_terms)) {
+			echo "new term " . $term . " added to db\n";
+			//should log these kinds of things too TODO
+		}
 	}
 
 	public function getDataTerms(): array {
@@ -85,6 +104,12 @@ class TaxonomyTerms {
 	}
 
 
+	public function getMeasureTerms(): array {
+
+		return $this->units_type_terms;
+	}
+
+
 	public function loadTerms(): array {
 
 		//testing file is readtaxodata.php its the source for below
@@ -92,7 +117,7 @@ class TaxonomyTerms {
 		$termsFile = new \SplFileObject($file, 'r');
 
 		$header = [];
-		$measure = [];
+		$measure = [];						//units of measure, (USD, EUR, shares etc)
 		$data = [];
 		$datatype = [];
 		$flag = 0;
@@ -113,7 +138,7 @@ class TaxonomyTerms {
 						$flag = 1;
 						break;
 					case '[measurement]':
-						$flag = 4;
+						$flag = 2;
 						break;
 					case '[data]':
 						$flag = 4;
@@ -152,6 +177,7 @@ class TaxonomyTerms {
 		$package = [];
 		array_push($package, $header);
 		array_push($package, $datatype);
+		array_push($package, $measure);
 		return $package;
 
 	}
@@ -167,6 +193,7 @@ class TaxonomyTerms {
 
 		//terms currently in use
 		$terms = $this->header_terms;
+		$UOM = $this->units_type_terms;
 		$data = $this->data_type_terms;
 
 		//file header
@@ -187,6 +214,20 @@ class TaxonomyTerms {
 			$item .= "\n";
 			$fileProc->fwrite($item);
 		}
+
+		$fileProc->fwrite($blank_line);
+		$fileProc->fwrite($blank_line);
+		$fileProc->fwrite("[data]\n");
+
+		$fileProc->fwrite($blank_line);
+		$fileProc->fwrite($blank_line);
+		$fileProc->fwrite("[measurement]\n");
+
+		foreach ($UOM as $item) {
+			$item .= "\n";
+			$fileProc->fwrite($item);
+		}
+
 		$fileProc->fwrite($blank_line);
 		$fileProc->fwrite($blank_line);
 		$fileProc->fwrite("[datatype]\n");
@@ -196,12 +237,6 @@ class TaxonomyTerms {
 			$fileProc->fwrite($item);
 		}
 
-		$fileProc->fwrite($blank_line);
-		$fileProc->fwrite($blank_line);
-		$fileProc->fwrite("[measurement]\n");
-		$fileProc->fwrite($blank_line);
-		$fileProc->fwrite($blank_line);
-		$fileProc->fwrite("[data]\n");
 
 		//check if written
 		if(file_exists($file)) {return true;}

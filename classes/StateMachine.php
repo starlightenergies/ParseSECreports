@@ -78,7 +78,7 @@ class StateMachine
 	public function statusMessage()
 	{
 
-		echo "Fin Record Class ID: " . $this->record_id . "\t";
+		echo "\e[36mFin Record Class ID: " . $this->record_id . "\e[m\t";
 		echo "Previous Task: " . $this->task . "\t";
 		if ($this->datatype == HEADER) {
 			echo "Working on Header\n";

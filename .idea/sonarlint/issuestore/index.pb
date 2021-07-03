@@ -1,3 +1,69 @@
 
 <
 phpstan.neon,9/5/9503203c22f7da4d5d8e7e8432696a59caf17f6c
+D
+data/all3M_data.json,d/2/d2493d5b22234fc618381d194ddb86866b890242
+J
+data/allAdobeSys_data.json,5/e/5e3789ab4a6c831323f27a9236eec6016c100ca6
+G
+data/allAlcoa_data.json,1/0/10fa1a7eabca144a4a1715e991207788a8477492
+H
+data/allAmazon_data.json,9/f/9f9aacaf35af489bced1326ea8a07a598db733ad
+G
+data/allApple_data.json,c/b/cb84c32fd1aa9022714c9c61b87f9ec045cf62aa
+H
+data/allBoeing_data.json,8/0/80c9a65134e6b007a1bbb444427c14ceab41fea3
+I
+data/allChevron_data.json,f/0/f0fc0b61eb37fb9274b3e84f0bd20c8c90940738
+G
+data/allCisco_data.json,5/5/55cac4842cacc95c2b5c4a056bd0ac349e9c3bcc
+H
+data/allCostco_data.json,0/b/0b8ac9388cd25f58c3b7548f842b4fa47d3926f2
+G
+data/allExxon_data.json,b/1/b1e0a7db57adee713098f3ba690daeff1c4b19ce
+K
+data/allFordMotor_data.json,9/8/98f6517ad2cba3d4eafba3b23be5c966b6e274fd
+M
+data/allFreePortFCX_data.json,5/5/55484c439cd6ccfe4603a1a12693d6f9e16f8b24
+K
+data/allGenMotors_data.json,6/6/662bc72b9dbc542d329671ed45b7e1febda744cd
+H
+data/allGoogle_data.json,2/0/20b3f91addadcc7b0cb08ef2f73f5e31929c182a
+K
+data/allHomeDepot_data.json,b/1/b1b7329d88612316a3fd7ff40e8b1aa9c0bdf515
+H
+data/allImpinj_data.json,b/e/be34f6e754724fee726d3212ceb82b3b44b2f8b7
+G
+data/allIntel_data.json,c/4/c4a326cbccacab26c2b5581b677be017e9678d02
+O
+data/allIntuitiveSurg_data.json,3/f/3f21da8f446c55abd67ef6b0d9939882bb6cc8de
+O
+data/allLasVegasSands_data.json,d/c/dc348c5bac18cdb570eccb2f749297a7806246ea
+J
+data/allLemonade_data.json,3/e/3ef0042f3b64ba26c8934450bb164814feedd437
+K
+data/allMicrosoft_data.json,b/9/b9552eb03f3c6c6ef952d81bfa0eddff1df62556
+O
+data/allNextEraEnergy_data.json,9/3/93953a45bfd4d7d72329c7fb4cd0317c5ceedd1a
+O
+includes/taxonomy_terms.txt.bak,1/6/16473746f55d9da94a3147f3b966a3b5951bcfc9
+P
+ includes/taxonomy_terms.txt.save,c/0/c04c31c02dd7884455f9abdb4bd780c1c68ba5e4
+=
+composer.json,3/9/3957b91a0d8450cea0115cfd5af69eac90d75897
+=
+composer.lock,c/3/c3262e2a0879195bd6a727e90f768bc85ad79ffd
+@
+readtaxodata.php,e/d/ed5b9caee195fd480f6af80c6ea97e0730e8436e
+F
+classes/JDdatabase.php,2/0/20bdf3cf71e082fee6662c22ea50d62f1b09b584
+B
+classes/Labels.php,0/7/070ce57ed6c658606476caf5a01498d7e2880fe1
+C
+classes/SiteMap.php,2/5/255c0f878c75b046e57e7bd4cd355bdaf57cbc7e
+C
+data/allIntuit.json,b/3/b305e986b9babee08ceb7925b898f4edd8bc90b0
+H
+data/allNvidia_data.json,b/7/b7a81aaab38a6fd9e1ebf5ea403a65d899908483
+>
+docs/README.md,9/f/9f7cbce127b94a94ee14460050fbff2ce58417d0

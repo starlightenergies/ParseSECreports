@@ -26,7 +26,7 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @purpose:    	XBRL Report Processing Application
  * @filename:    	Activity.php
  * @version:    	1.0
- * @lastUpdate:  	2021-07-01
+ * @lastUpdate:  	2021-07-02
  * @author:        	James Danforth <james@reemotex.com>
  * @pattern:
  * @since:    		2021-06-24
@@ -42,9 +42,9 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 class Activity {
 
-	private const CHAR_TIME = 2;
+	private const CHAR_TIME = 0;
 	private const BRACE_TIME = 0;
-	private const BRACKET_TIME = 15;
+	private const BRACKET_TIME = 2;
 	private object $taxoTerms;
 	private object $Rec;
 
@@ -57,29 +57,31 @@ class Activity {
 
 	public function displayActivity($c, $S, $R, $B) {
 
-
+		echo "\e[10;20H";
 		echo "Company: " . $R->company_name . "\t";
 		echo "CIK: " . $R->cik . "\t";
-		echo "Key Name: " . $R->key_name . "\t";
+		echo "\e[33mKey Name: " . $R->key_name . "\e[m\t";
 		echo "Key Value: " . $R->key_value . "\n\n";
+		echo "\e[14;20H";
 
-		echo "Datastore count: " . count($R->dataStore) . "\t";
+		echo "\e[35mDatastore count: " . count($R->dataStore) . "\e[m\t";
 		echo "Current Data ID: " . $R->currentObjectId . "\t";
 		if (count($R->dataStore) > 0) {
 			$data_id = $R->currentObjectId;
 			$data = $R->dataStore[$data_id];
 			$type = $data->data_type;
 			echo "Data Taxonomy: " . $data->taxonomy . "\t";
-			echo "Data Object Type: " . $type . "\t";
+			echo "Data Object Type: " . "\e[31m" . $type . "\t" . "\e[m";		//resets default;
 			echo "Data Units Type: " . $data->data_units . "\n";
-			echo "Data Unit Flag: " . $B->unit_flag . "\n";
+			echo "Data Unit Flag: " . "\e[31m" . $B->unit_flag . "\e[m" . "\n";
 			echo "Data Label Value: " . $data->label . "\n";
 			echo "Data Description: " . $data->description . "\n";  //this is really long string so separate line
-			echo "Data Complete Status: " . $data->completion_status . "\n";
+			echo "\e[31mData Complete Status: " . $data->completion_status . "\e[m\n";
+			if($data->completion_status > 6){echo "COMPLETE TOO HIGH!\n"; sleep(10);}
 
 			if (count($data->entryStore) > 0) {
 				echo "Recordstore count: " . count($data->entryStore) . "\t";
-				echo "Current Entry ID: " . $data->currentEntryId . "\t";
+				echo "\e[36mCurrent Entry ID: " . $data->currentEntryId . "\e[m\t";
 				$entry = $data->entryStore[$data->currentEntryId];
 				echo "Entry Object Type: " . $entry->name . "\n";
 				echo "Entry Key: " . $entry->current_key . "\t";
@@ -101,7 +103,7 @@ class Activity {
 			echo "character: " . $c . "\n";
 		}
 
-		echo "character count: " . $S->char_id . "\t";
+		echo "\e[31mcharacter count: \e[m" . $S->char_id . "\t";
 		echo "brace count: " . $S->braces . "\t";
 		echo "colon count: " . $S->colon . "\t";
 		echo "quote count: " . $S->quotes . "\t";
@@ -153,9 +155,13 @@ class Activity {
 		if (preg_match("/^Tesla.*$/",$R->company_name)) {
 			$FilePace($R, $S, 2210975, $c);
 		} elseif(preg_match("/^Carnival.*$/",$R->company_name)) {
-			$FilePace($R, $S, 229250, $c);
- 		} else {
-			$FilePace($R,$S,30000000,$c);
+			$FilePace($R, $S, 3100000, $c);
+ 		} elseif(preg_match("/^RANCON.*$/",$R->company_name)) {
+			$FilePace($R, $S, 3100000, $c);
+		} elseif(preg_match("/^1841661.*$/",$R->cik)) {
+			$FilePace($R, $S, 0, $c);
+		}else {
+			$FilePace($R,$S,0,$c);
 		}
 	}
 }
