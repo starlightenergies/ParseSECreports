@@ -49,10 +49,6 @@ O
 includes/taxonomy_terms.txt.bak,1/6/16473746f55d9da94a3147f3b966a3b5951bcfc9
 P
  includes/taxonomy_terms.txt.save,c/0/c04c31c02dd7884455f9abdb4bd780c1c68ba5e4
-=
-composer.json,3/9/3957b91a0d8450cea0115cfd5af69eac90d75897
-=
-composer.lock,c/3/c3262e2a0879195bd6a727e90f768bc85ad79ffd
 @
 readtaxodata.php,e/d/ed5b9caee195fd480f6af80c6ea97e0730e8436e
 F
@@ -67,3 +63,7 @@ H
 data/allNvidia_data.json,b/7/b7a81aaab38a6fd9e1ebf5ea403a65d899908483
 >
 docs/README.md,9/f/9f7cbce127b94a94ee14460050fbff2ce58417d0
+@
+bin/testansi.php,c/9/c9657f3d6be30463f19ab1154a7e8634e72ca463
+E
+classes/AnsiTests.php,b/b/bbcabda093c825a1d58adbff3623b9c9eb6593dc

@@ -55,3 +55,9 @@ const SRT_TYPE = "srt";						//would be good for taxonomy class to update this f
 const UNITS = "units";						//and update RecordBuilder switch statement too :-)
 const COUNTRY = "countries";
 const CURRENCY = "currencies";
+
+
+const  NEWTERM = "new term";
+const ADDEDTODB = " added to db\n";
+
+

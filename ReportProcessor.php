@@ -70,13 +70,20 @@ while ($file = readdir($dirHandle)) {
 
 		$file = $dir . "/" . $file;
 		$fileProc = new Files($file);
-		//array_push($filestore,$fileProc);			was using
-		//all NEW Below
+		//get objects needed for after each file is processed
+		$Record = $fileProc->Record;
+		$State = $fileProc->State;
+		$Action = $fileProc->Activity;
+
 		$SPL_file_object = $fileProc->createFileHandle('r');
 		while (!$SPL_file_object->eof()) {
 			$char = $SPL_file_object->fgetc();										//get character from file object
 			$type = $fileProc->examineCharacter($char);						//process character with processFile object
 		}
+
+		//view data summary when file processing complete
+		$Action->collectedDataSummary($Record,$State);
+
 }
 closedir($dirHandle);
 

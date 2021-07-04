@@ -122,13 +122,13 @@ class RecordBuilder {
 							$result = CONTINUEPROCESSING;        //causes return to build in Header Loop below...
 							if($curr_data->completion_status > 6) {
 								echo $StateM->char_id . " has problem with data complete flag\n";
-								sleep(20);
+								sleep(2000);
 							}
 
 						} else {
 							$StateM->task = MAKEKEY;
-							echo "here i am in [data] description header make new key " . $curr_data->completion_status . "char = " . $char .
-								"\n";
+						//	echo "here i am in [data] description header make new key " . $curr_data->completion_status . "char = " . $char .
+						//		"\n";
 							//sleep(60);
 						}
 						break;
@@ -165,7 +165,7 @@ class RecordBuilder {
 				}
 				$currentObject = $Record->currentObjectId;
 				$data = $Record->dataStore[$currentObject];
-				echo "Record has descrip: " . $data->description . "\n";
+				//echo "Record has descrip: " . $data->description . "\n";
 				$obj_id = $Record->createDataObject($data->taxonomy);
 				break;
 			case STOREKEYVAL:                                                        //ok set by comma
@@ -243,7 +243,7 @@ class RecordBuilder {
 			//write updates to file
 			if(!$terms->updateTermsDatabase()) {
 				echo "Terms not written to database at: " . $S->char_id . "\n";
-				sleep(60);
+				sleep(2060);
 			}
 
 		}
@@ -377,8 +377,8 @@ class RecordBuilder {
 
 		//alert if big key length
 		if(strlen($R->key_name) > 130 ){
-			echo $R->key_name . " in " .  $R->company_name . "\nis size: " . strlen($R->key_name) . "\n";
-			sleep(1);
+		//	echo $R->key_name . " in " .  $R->company_name . "\nis size: " . strlen($R->key_name) . "\n";
+		//	sleep(1);
 		}
 	}
 
@@ -391,8 +391,8 @@ class RecordBuilder {
 
 		//alert if big key length
 		if(strlen($R->key_value) > 1500 ){
-			echo $R->key_value . " in " .  $R->company_name . " \nis size: " . strlen($R->key_value) . "\n";
-			sleep(1);
+		//	echo $R->key_value . " in " .  $R->company_name . " \nis size: " . strlen($R->key_value) . "\n";
+		//	sleep(1);
 		}
 	}
 

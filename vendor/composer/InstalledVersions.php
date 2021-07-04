@@ -33,7 +33,7 @@ private static $installed = array (
     array (
       0 => '3.1.x-dev',
     ),
-    'reference' => '66e0acdf3f245dfc44cea946d1fcda383ccbf2c7',
+    'reference' => '94d67a32979d3562a375451fb5b7880ba5522fdd',
     'name' => 'james/vaultbear',
   ),
   'versions' => 
@@ -70,7 +70,7 @@ private static $installed = array (
       array (
         0 => '3.1.x-dev',
       ),
-      'reference' => '66e0acdf3f245dfc44cea946d1fcda383ccbf2c7',
+      'reference' => '94d67a32979d3562a375451fb5b7880ba5522fdd',
     ),
     'kodova/hamcrest-php' => 
     array (
@@ -188,7 +188,7 @@ private static $installed = array (
       array (
         0 => '0.12.x-dev',
       ),
-      'reference' => 'dd821ccda9484f0c23f8ecce20496769f400e9e1',
+      'reference' => 'd6d57f2cf47d93a93689b4d4e0b012362a73f88a',
     ),
     'phpstan/phpstan-nette' => 
     array (
@@ -208,7 +208,7 @@ private static $installed = array (
       array (
         0 => '2.8.x-dev',
       ),
-      'reference' => '7868a70f54e2bf7ceab654719005e9d2d2311e79',
+      'reference' => 'a0c1b096dda355581eb99a0fa245e1a2f4c7a5fc',
     ),
   ),
 );

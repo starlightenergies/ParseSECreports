@@ -19,7 +19,7 @@ use Nette\Http\UrlScript;
 $url = "https://data.sec.gov/api/xbrl/companyfacts/CIK0000354950.json";
 
 //lemonade
-$url2 = "https://data.sec.gov/api/xbrl/companyfacts/CIK0001691421.json";
+$url2 = "https://data.sec.gov/api/xbrl/companyfacts/";
 
 
 //below not working. need browser

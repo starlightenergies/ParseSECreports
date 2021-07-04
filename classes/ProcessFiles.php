@@ -73,7 +73,7 @@ class ProcessFiles {
 		$StateM = $this->State;
 		$Build = $this->Builder;
 		$Recd = $this->Record;
-		$StateM->statusMessage();
+		//$StateM->statusMessage();
 
 		switch($c) {
 			case '{':
@@ -155,7 +155,8 @@ class ProcessFiles {
 				}
 		}
 
-		$this->Activity->displayActivity($c, $StateM, $Recd,$Build);
+		$this->Activity->minimalActivity($StateM, $Recd);
+		//$this->Activity->displayActivity($c, $StateM, $Recd,$Build);
 		return $result;
 	}
 

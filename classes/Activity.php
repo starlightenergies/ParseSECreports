@@ -44,7 +44,7 @@ class Activity {
 
 	private const CHAR_TIME = 0;
 	private const BRACE_TIME = 0;
-	private const BRACKET_TIME = 2;
+	private const BRACKET_TIME = 0;
 	private object $taxoTerms;
 	private object $Rec;
 
@@ -53,6 +53,43 @@ class Activity {
 		$this->taxoTerms = new Terms(123);
 
 
+	}
+
+	public function collectedDataSummary($R,$S) {
+
+		//method called when reach end of file by ReportProcessor
+		$dataObjects = $R->dataStore;
+			foreach ($dataObjects as $key => $data) {
+				echo $key . " val: " . $data->data_type . " and entries: " . count($data->entryStore) .
+					" and units: " . $data->data_units . "\n";
+
+
+				$entries = $data->entryStore;
+				foreach ($entries as $key => $ent) {
+					$vals = $ent->values;
+					echo "\n";
+					echo "file point char: " . $S->char_id . "\n";
+					echo "data type field size: " . strlen($data->data_type) . "\n";
+
+					foreach ($vals as $key2 => $values) {
+						echo "entry key: " . $key2 . " entry val: " . $values . "\n";
+						if (!preg_match("/[A-Z0-9\-]/", $values)) {
+							echo "weird character\n";
+							//sleep(5);				//usually the weird character is an empty field...TODO
+						}
+					}
+				}
+
+			}
+
+	}
+
+	public function minimalActivity($S, $R) {
+
+		//method called by ProcessFiles
+
+		echo "\e[36mFin Record Class ID: " . $S->record_id . "\e[m\t";
+		echo "Company: " . $R->company_name . "\t" . "\e[31mcharacter count: \e[m" . $S->char_id . "\n";
 	}
 
 	public function displayActivity($c, $S, $R, $B) {

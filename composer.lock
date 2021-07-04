@@ -853,12 +853,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "dd821ccda9484f0c23f8ecce20496769f400e9e1"
+                "reference": "d6d57f2cf47d93a93689b4d4e0b012362a73f88a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/dd821ccda9484f0c23f8ecce20496769f400e9e1",
-                "reference": "dd821ccda9484f0c23f8ecce20496769f400e9e1",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/d6d57f2cf47d93a93689b4d4e0b012362a73f88a",
+                "reference": "d6d57f2cf47d93a93689b4d4e0b012362a73f88a",
                 "shasum": ""
             },
             "require": {
@@ -910,7 +910,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-06-29T09:27:53+00:00"
+            "time": "2021-07-03T14:59:53+00:00"
         },
         {
             "name": "phpstan/phpstan-nette",
@@ -982,12 +982,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/tracy.git",
-                "reference": "7868a70f54e2bf7ceab654719005e9d2d2311e79"
+                "reference": "a0c1b096dda355581eb99a0fa245e1a2f4c7a5fc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/tracy/zipball/7868a70f54e2bf7ceab654719005e9d2d2311e79",
-                "reference": "7868a70f54e2bf7ceab654719005e9d2d2311e79",
+                "url": "https://api.github.com/repos/nette/tracy/zipball/a0c1b096dda355581eb99a0fa245e1a2f4c7a5fc",
+                "reference": "a0c1b096dda355581eb99a0fa245e1a2f4c7a5fc",
                 "shasum": ""
             },
             "require": {
@@ -1049,7 +1049,7 @@
                 "issues": "https://github.com/nette/tracy/issues",
                 "source": "https://github.com/nette/tracy/tree/master"
             },
-            "time": "2021-06-15T22:44:49+00:00"
+            "time": "2021-06-30T11:32:53+00:00"
         }
     ],
     "aliases": [],

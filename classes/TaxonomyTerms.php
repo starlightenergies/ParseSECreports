@@ -34,6 +34,7 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @comments:		Terms are scattered throughout JSON. Terms are a moving target and most data types are of little value.
  */
 
+
 class TaxonomyTerms {
 
 	public array $header_terms = [];
@@ -71,7 +72,7 @@ class TaxonomyTerms {
 
 		$this->data_type_terms[] = $term;
 		if(in_array($term,	$this->data_type_terms)) {
-			echo "new term " . $term . " added to db\n";
+			echo NEWTERM . $term . ADDEDTODB;
 		}
 
 	}
@@ -80,7 +81,7 @@ class TaxonomyTerms {
 
 		$this->header_terms[] = $term;
 		if(in_array($term,	$this->header_terms)) {
-			echo "new term " . $term . " added to db\n";
+			echo NEWTERM . $term . ADDEDTODB;
 			//should log these kinds of things too TODO
 		}
 	}
@@ -90,7 +91,7 @@ class TaxonomyTerms {
 
 		$this->units_type_terms[] = $term;
 		if(in_array($term,	$this->units_type_terms)) {
-			echo "new term " . $term . " added to db\n";
+			echo NEWTERM . $term . ADDEDTODB;
 			//should log these kinds of things too TODO
 		}
 	}
@@ -195,6 +196,9 @@ class TaxonomyTerms {
 		$terms = $this->header_terms;
 		$UOM = $this->units_type_terms;
 		$data = $this->data_type_terms;
+
+		//sort them
+		asort($terms);
 
 		//file header
 		$dataH[1] = "#total headers: " . count($terms) . " total data types: " . count($data) . "\n";
