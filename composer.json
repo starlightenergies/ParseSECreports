@@ -15,7 +15,8 @@
 		"ext-pdo": "*",
 		"nette/caching": "^3.0",
 		"nette/utils": "^3.2.1",
-		"nette/http": "v4.0.x-dev"
+		"nette/http": "v4.0.x-dev",
+		"guzzlehttp/guzzle": "7.4.x-dev"
 	},
 	"require-dev": {
 		"nette/tester": "^2.4",
