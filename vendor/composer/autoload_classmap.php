@@ -78,6 +78,7 @@ return array(
     'JDApp\\Activity' => $baseDir . '/classes/Activity.php',
     'JDApp\\AnsiTests' => $baseDir . '/classes/AnsiTests.php',
     'JDApp\\Data' => $baseDir . '/classes/Data.php',
+    'JDApp\\Downloader' => $baseDir . '/classes/Downloader.php',
     'JDApp\\Entry' => $baseDir . '/classes/Entry.php',
     'JDApp\\FinancialRecord' => $baseDir . '/classes/FinancialRecord.php',
     'JDApp\\JDdatabase' => $baseDir . '/classes/JDdatabase.php',

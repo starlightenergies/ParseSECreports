@@ -33,7 +33,7 @@ private static $installed = array (
     array (
       0 => '3.1.x-dev',
     ),
-    'reference' => '19b976179af1a28d96d2b33df6af818fa9afdc1c',
+    'reference' => '239cf03ce849273a00f47888141e4922b26fc30e',
     'name' => 'james/vaultbear',
   ),
   'versions' => 
@@ -100,7 +100,7 @@ private static $installed = array (
       array (
         0 => '3.1.x-dev',
       ),
-      'reference' => '19b976179af1a28d96d2b33df6af818fa9afdc1c',
+      'reference' => '239cf03ce849273a00f47888141e4922b26fc30e',
     ),
     'kodova/hamcrest-php' => 
     array (
@@ -171,7 +171,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => '2ea0c5fe5f2b4031aef684c259dd437e0ddd6912',
+      'reference' => '59bb35ed6e8da95854fbf7b7d47dce6156b42915',
     ),
     'nette/robot-loader' => 
     array (
@@ -218,7 +218,7 @@ private static $installed = array (
       array (
         0 => '0.12.x-dev',
       ),
-      'reference' => 'd6d57f2cf47d93a93689b4d4e0b012362a73f88a',
+      'reference' => 'a656ebf75c064b6eaf56562397dc0bc7c702bb81',
     ),
     'phpstan/phpstan-nette' => 
     array (

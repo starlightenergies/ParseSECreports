@@ -26,7 +26,7 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @purpose:    	XBRL Report Processing Application
  * @filename:    	ReportProcessor.php
  * @version:    	1.0
- * @lastUpdate:  	2021-07-01
+ * @lastUpdate:  	2021-07-09
  * @author:        	James Danforth <james@reemotex.com>
  * @pattern:
  * @since:    		2021-06-24
@@ -39,41 +39,93 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @comment:
  */
 
+/* usage
+	- processes each new JSON company facts file and stores into financial database
+	- see documentation and flowcharts in docs folder and flowcharts folder TODO
+	- the data is analyzed and presented in www.vaultbear.com as time permits...
+*/
 
-//get stock symbols from from database  //TODO
-//build curl or http request for all file data -- may need SEC API //TODO
-//store datafiles in directory	//TODO
-
-//read directory to get file names -- below
-//process them one at a time through loop -- below
 
 //boost memory allocated by php
 $option = 'memory_limit';
 $value = '4096M';
 $oldMem = ini_set($option, $value);
 
+//export these environment variables from your .bashrc file
+//then use them here
+
+$d = trim(shell_exec('echo ${DSN}'));
+$u = trim(shell_exec('echo ${USER}'));
+$p = trim(shell_exec('echo ${PASS}'));
+$T = trim(shell_exec('echo ${TERM}'));
+define('TERM', $T);
+
+//get database handle
+$db = new JDdatabase($d,$u,$p);
+$db->createDBHandle();
+
+//resultset returned
+$vals = $db->showTables(10);
+$count = 0;
+$header = <<<END
+\n
+ID  	Name					       		    Symbol 
+--------------------------------------------------------\n
+END
+;
+echo $header;
+foreach($vals as $row){
+
+	echo $row->id . "\t" . str_pad($row->name,40) . "\t" . $row->symbol . "\n";
+	$count++;
+	if($count % 20 == 0){
+		echo $header;
+	}
+}
+
+//resultset returned (id, cik, symbol where active and cik != 0
+//at the end of a file processing this record set is sent
+//to the Record just processed to aid database entries for its
+//data objects and entry objects
+
+//now array returned, result set cant be rewound...
+$active_stocks = $db->selectActiveStocksList();
+
+//only process new files. this will gradually update data directory
+//data directory is the foundation/basis for the database
 
 $filestore = [];
-$dir = __DIR__ . '/data';
+$dir = __DIR__ . '/data2';
 echo $dir;
 
 if ($dirHandle = opendir($dir)) {
 	echo "\ngot filehandle\n";
 }
 
+
+//read directory to get file names
+//process them one at a time through loop
 while ($file = readdir($dirHandle)) {
 
+
 		if ($file == '.' || $file == '..'||preg_match("/.save$/", $file)
-			||preg_match("/.bak$/", $file) ) {
+			||preg_match("/.bak$/", $file)) {
 			continue;
 		}
 
 		$file = $dir . "/" . $file;
-		$fileProc = new Files($file);
-		//get objects needed for after each file is processed
+		if(filesize($file) < 100 ) {
+			//ignore essentially empty files.
+			continue;
+		}
+
+	$fileProc = new Files($file);
+		//get objects needed after each file is processed
 		$Record = $fileProc->Record;
 		$State = $fileProc->State;
 		$Action = $fileProc->Activity;
+
+
 
 		$SPL_file_object = $fileProc->createFileHandle('r');
 		while (!$SPL_file_object->eof()) {
@@ -84,36 +136,62 @@ while ($file = readdir($dirHandle)) {
 		//view data summary when file processing complete
 		$Action->collectedDataSummary($Record,$State);
 
-}
+		//review file stat
+		echo "Overall: " . $Record->company_name . "\t" . $Record->cik . "\t" . count($Record->dataStore) . "\n";
+
+		// initiate cascade of database entries by passing $db object and
+		// Resultset object holding qualified stocks to update from the Company table.
+		// the Record that just finished processing above is called below and
+		// will store its data and call each data object in its datastore to
+		// store its data, then each data object will call each entry in its
+		// entry store to store their data. And then on to the next record...TODO
+
+		$insertID = $Record->storeRecordData($db, $active_stocks);
+		if($insertID == 0) {
+
+			//add to company table
+			if(!empty($Record->company_name)) {
+				$status = 'y';
+				$insertID = $db->addNewCompany($Record->company_name, $status, $Record->cik);
+				if($insertID > 0) {
+					//try to process report again.
+					//rebuild array...
+					$active_stocks = $db->selectActiveStocksList();
+					$insertID = $Record->storeRecordData($db, $active_stocks);
+					echo "2nd Try insertID: " . $insertID . " and storageFlag: " . $Record->storedInDb . "\n";
+					sleep(5);
+
+				}
+			} else {
+				echo "Company CIK not found, discontinue work, fail logged\n";
+				//log entry into file
+				$handle = fopen(__DIR__ . "/logs/report-processor.log", 'a');
+				$date = trim(shell_exec('date +%Y-%m-%d-%H-%M-%S'));
+				$record = $date . ", " . $Record->cik . ", " . $Record->company_name . ", " . "DB financial record insert failed\n";
+				fwrite($handle, $record);
+				fclose($handle);
+				sleep(5);
+
+			}
+		}
+
+		//more to come here TODO
+
+
+} //end of main loop
+
 closedir($dirHandle);
 
-echo "found " . count($filestore) . " files\n";
-sleep(3);
-/*
-//filestore has filename and ProcessFile Object and
-//each of these holds the complete financial record of the file processes, (intuit, tesla etc)
-foreach ($filestore as $file_obj) {
-
-	//create a file object from the filename with processFile object .. synced
-	$SPL_file_object = $file_obj->createFileHandle('r');
-	$filenameObjects[$file_obj->currentFile] = $SPL_file_object;
-
-	foreach ($filenameObjects as $filename => $object) {
-
-		while (!$object->eof()) {
-			$char = $object->fgetc();										//get character from file object
-			$type = $file_obj->examineCharacter($char);						//process character with processFile object
-		}
-	}
-}
-*/
+//cleanup files processed here TODO
 
 
 //reset memory allocated by php
 $value = $oldMem;
 ini_set($option, $value);
 
-/*
+
+/*  notes below
+
 foreach ($filestore as $file) {
 	echo $file->getFilename() . " name from store\n";
 	echo $file->getMaxLineLen() . " maximum line length\n";

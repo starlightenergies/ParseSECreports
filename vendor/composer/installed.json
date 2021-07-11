@@ -759,12 +759,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/php-generator.git",
-                "reference": "2ea0c5fe5f2b4031aef684c259dd437e0ddd6912"
+                "reference": "59bb35ed6e8da95854fbf7b7d47dce6156b42915"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/php-generator/zipball/2ea0c5fe5f2b4031aef684c259dd437e0ddd6912",
-                "reference": "2ea0c5fe5f2b4031aef684c259dd437e0ddd6912",
+                "url": "https://api.github.com/repos/nette/php-generator/zipball/59bb35ed6e8da95854fbf7b7d47dce6156b42915",
+                "reference": "59bb35ed6e8da95854fbf7b7d47dce6156b42915",
                 "shasum": ""
             },
             "require": {
@@ -780,7 +780,7 @@
             "suggest": {
                 "nikic/php-parser": "to use ClassType::withBodiesFrom() & GlobalFunction::withBodyFrom()"
             },
-            "time": "2021-03-11T20:54:24+00:00",
+            "time": "2021-07-05T12:02:42+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -1132,12 +1132,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "d6d57f2cf47d93a93689b4d4e0b012362a73f88a"
+                "reference": "a656ebf75c064b6eaf56562397dc0bc7c702bb81"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/d6d57f2cf47d93a93689b4d4e0b012362a73f88a",
-                "reference": "d6d57f2cf47d93a93689b4d4e0b012362a73f88a",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/a656ebf75c064b6eaf56562397dc0bc7c702bb81",
+                "reference": "a656ebf75c064b6eaf56562397dc0bc7c702bb81",
                 "shasum": ""
             },
             "require": {
@@ -1146,7 +1146,7 @@
             "conflict": {
                 "phpstan/phpstan-shim": "*"
             },
-            "time": "2021-07-03T14:59:53+00:00",
+            "time": "2021-07-05T14:12:17+00:00",
             "default-branch": true,
             "bin": [
                 "phpstan",

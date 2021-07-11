@@ -36,8 +36,8 @@ class ComposerStaticInitc54140dfd055cef4e176f08aa2bd1a7c
     public static $prefixDirsPsr4 = array (
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-message/src',
-            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
         'Psr\\Http\\Client\\' => 
         array (
@@ -50,6 +50,7 @@ class ComposerStaticInitc54140dfd055cef4e176f08aa2bd1a7c
         'JDApp\\' => 
         array (
             0 => __DIR__ . '/../..' . '/classes',
+            1 => __DIR__ . '/../..' . '/bin',
         ),
         'GuzzleHttp\\Psr7\\' => 
         array (
@@ -148,6 +149,7 @@ class ComposerStaticInitc54140dfd055cef4e176f08aa2bd1a7c
         'JDApp\\Activity' => __DIR__ . '/../..' . '/classes/Activity.php',
         'JDApp\\AnsiTests' => __DIR__ . '/../..' . '/classes/AnsiTests.php',
         'JDApp\\Data' => __DIR__ . '/../..' . '/classes/Data.php',
+        'JDApp\\Downloader' => __DIR__ . '/../..' . '/classes/Downloader.php',
         'JDApp\\Entry' => __DIR__ . '/../..' . '/classes/Entry.php',
         'JDApp\\FinancialRecord' => __DIR__ . '/../..' . '/classes/FinancialRecord.php',
         'JDApp\\JDdatabase' => __DIR__ . '/../..' . '/classes/JDdatabase.php',

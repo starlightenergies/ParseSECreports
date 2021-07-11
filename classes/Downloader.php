@@ -6,7 +6,6 @@ use GuzzleHttp\Promise\Promise;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Utils;
 
-
 /*
 MIT LICENSE
 Copyright 2021 StarlightEnergies.com
@@ -29,7 +28,7 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @purpose:    	XBRL Report Processing Application
  * @filename:    	Downloader.php
  * @version:    	1.0
- * @lastUpdate:  	2021-07-04
+ * @lastUpdate:  	2021-07-08
  * @author:        	James Danforth <james@reemotex.com>
  * @pattern:		Wrapper around GuzzleHttp, makes HTTP Clients.
  * @since:    		2021-07-04
@@ -43,41 +42,87 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 /* usage:
-	-- most of this is all setup but if done from scratch it would be:
-	- set bulkdata URL
-	- smart to use test url first
+	-- there are too many examples to list but here is one:
+		//create client // $dl = new Downloader();  $client = $dl->guzzleClient();
+		//set name of file to create with downloaded info // $file = "../data2/companyfacts.zip";
+		//set target to download (or provide URL string) // $target = $dl->bulk_data_url;
+		//set location to store data (or send location) // $dl->setGuzzleSink($file);
+		//setup resource to write to (..data2/companydata.zip, etc)  // $dl->setGuzzleResource($file);
+		//setup guzzle stream (uses resource created above)  // $dl->setGuzzleStream();
+		//set appropriate header for file type  // application/zip, text/xml, etc // $dl->setAcceptHeader('application/zip');
+		//download the file with get method //$response = $dl->downloadSEFile($client, $target);
+		//display common response codes and headers  //$dl->getCommonResponseCodes($response);
+		//check download file status	// $dl->checkDownloadFileStatus();
+		//list headers separately(optional) // $dl->listHeadersOnly($response);
+		//close file resource // $dl->closeFileHandle();
+
+//create client
+$dl = new Downloader();
+$client = $dl->guzzleClient();
+$domain = "www.alphavantage.com";
+$dl->setHostDomain($domain);								//set the host in the headers
+$file = "../includes/listing_status.csv";					//set name of file to create with downloaded info
+$target = $activeListReq;									//set target to download (or provide URL string)
+$dl->setGuzzleSink($file);									//set location to store data (or send location)
+$dl->setGuzzleResource($file);								//setup resource to write to (..data2/companydata.zip, etc)
+$dl->setGuzzleStream();										//setup guzzle stream (uses resource created above)
+$dl->setAcceptHeader('text/plain');							//set media header application/zip, text/xml, text/plain etc
+$response = $dl->downloadSEFile($client, $target);			//download the file with get method
+$dl->getCommonResponseCodes($response);						//display common response codes and headers
+$dl->checkDownloadFileStatus($file);						//check download file status
+$dl->listHeadersOnly($response);							//list headers separately(optional)
+$dl->closeFileHandle();										//close file resource
 
 */
 
 
+
 class Downloader {
 
-	public const DOWNLOADDIR = __DIR__ . "/../downloads/";
-	public const USERAGENT = 'StarlightEnergies admin@workinout.com';
-	public const GETMETHOD = 'GET';
-	public string $co_facts_url;
-	public string $bulk_data_url;
-	public string $test_SEC_url;
-	public string $latest_filings_xml_url;
-	private string $guzzle_sink;
+
+	const DOWNLOADDIR = __DIR__ . "/../downloads/";
+	const USERAGENT = 'StarlightEnergies <admin@workinout.com>';
+	const GETMETHOD = 'GET';
+	public $co_facts;
+	public $bulk_data_url;
+	public $test_SEC_url;
+	public $latest_filings_xml_url;
+	private $guzzle_sink;
 	private $resource;
-	private Utils $stream;
+	private $stream;
+	private $accept_header;
+	public $cik_list;
+	public $host_domain;
 
 
 	//home depot default json :-)
-	public function __construct(string $json_file='CIK0000354950.json') {
+	public function __construct() {
 
 		//just append CIK JSON filename to co_facts_url for whatever company you may want
-		$this->co_facts_url = "https://data.sec.gov/api/xbrl/companyfacts/" . $json_file;
+		$this->co_facts = "https://data.sec.gov/api/xbrl/companyfacts/CIK0000354950.json";
 		$this->bulk_data_url = "https://www.sec.gov/Archives/edgar/daily-index/xbrl/companyfacts.zip";
 		$this->latest_filings_xml_url = "https://www.sec.gov/Archives/edgar/xbrlrss.all.xml";
 		$this->test_SEC_url = "https://www.sec.gov/Archives/edgar/xbrlrss.all.xml";
+		$this->cik_list = "https://www.sec.gov/include/ticker.txt";
+		$this->host_domain = "www.sec.gov";
 
 	}
 
-	public function setGuzzleSink() {
+	public function setHostDomain($domain) {
+		$this->host_domain = $domain;
+	}
 
-		$this->guzzle_sink = '../data2/companyfacts.zip';
+	public function setAcceptHeader($header) {
+		$this->accept_header = $header;
+	}
+
+	public function setGuzzleSink(string $file="") {
+
+		if(empty($file)) {
+			$this->guzzle_sink = '../data2/companyfacts.zip';
+		} else {
+			$this->guzzle_sink = $file;
+		}
 
 	}
 
@@ -106,18 +151,18 @@ class Downloader {
 	}
 
 
-	public function downloadSECBulkFile($client): Response {
+	public function downloadSEFile($client,$target): Response {
 
 		//returns $response
-		return $client->request(self::GETMETHOD, $this->bulk_data_url, [
+		return $client->request(self::GETMETHOD, $target, [
 			//'save_to' => $stream,
 			'sink' => $this->guzzle_sink,
 			//'stream' => true,
 			'headers' => [
 				'User-Agent' => self::USERAGENT,
-				'Accept' => 'application/zip',
+				'Accept' => $this->accept_header,
 				'Accept-Encoding' => ['gzip', 'deflate'],
-				'Host' => 'www.sec.gov'
+				'Host' => $this->host_domain
 			],
 			'progress' => function (
 				$downloadTotal,
@@ -129,7 +174,6 @@ class Downloader {
 				echo "download Total: " . floatval($downloadBytes / $downloadTotal) . "\n";
 			},
 		]);
-
 	}
 
 		public function getCommonResponseCodes($response) {
@@ -142,14 +186,20 @@ class Downloader {
 
 		}
 
-		public function checkDownloadFileStatus() {
+		public function checkDownloadFileStatus(?string $file) {
 
-			chdir('../data2');
-			if(file_exists('companyfacts.zip')) {
-				echo "Found file companyfacts.txt\n";
-				//stat
+			if(empty($file)) {
+				chdir('../data2');
+				if(file_exists('companyfacts.zip')) {
+					echo "Found file companyfacts.zip\n";
+					//stat
+				} else{
+					if(file_exists($file)) {
+						echo "Found file: " . $file . "\n";
+						//stat
+					}
+				}
 			}
-
 		}
 
 		public function handleBodyResponse($response) {
@@ -170,7 +220,18 @@ class Downloader {
 				echo 'I completed! ' . $response->getBody();
 			});
 			return $promise->wait();
-
 		}
+
+		public function listHeadersOnly($resp) {
+
+			foreach($resp->getHeaders() as $name => $values) {
+				echo $name . ': ' . implode(', ',$values) . "\n";
+			}
+		}
+
+		public function closeFileHandle() {
+			fclose($this->resource);
+		}
+
 }
 

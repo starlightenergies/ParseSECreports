@@ -24,7 +24,7 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @version:    	1.00
  * @lastUpdate:  	2021-06-28
  * @author:        	James Danforth <james@reemotex.com>
- * @pattern:
+ * @pattern:		Container
  * @since:    		2021-06-24
  * @controller:
  * @view:
@@ -33,6 +33,13 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @inheritsTo:
  * @comment: 		Data stores Entries by data type for storage in Record class store
  */
+
+/* usage
+	- holds all data records and associated entries in an SEC companyfacts CIK numbered JSON file in data dir
+	- persistent storage in stockengine database. linked to financialrecords table, company table
+	- used in processing by ReportProcessor.php, which transfers json data into data object and stores entries in entry store
+	-  data objects held in financialrecords object. these data objects hold all the entries from entries object
+*/
 
 
 class Data {

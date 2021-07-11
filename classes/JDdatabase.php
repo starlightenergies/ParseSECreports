@@ -3,7 +3,9 @@ namespace JDApp;
 use Exception;
 use Nette\Database\Connection;
 use Nette\Database\ConnectionException;
+use Nette\Database\DriverException;
 use Nette\Database\ResultSet;
+use Nette\Database\DriverException as DException;
 
 
 /* MIT LICENSE
@@ -25,9 +27,9 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /**
  * @purpose:	XBRL Report Processing Application
- * @filename:	Database.php
+ * @filename:	JDdatabase.php
  * @version:  	1.0
- * @lastUpdate:  2021-04-04
+ * @lastUpdate:  2021-07-09
  * @author:    	James Danforth <james@reemotex.com>
  * @pattern:
  * @since:   	2021-04-04
@@ -47,6 +49,7 @@ class JDdatabase {
 	public $user;
 	public $password;
 	public $errors;
+	const ERRORMSG = "Error on select: ";
 
 	public function __construct($dsn,$user,$password) {
 		$this->dsn = $dsn;
@@ -70,7 +73,10 @@ class JDdatabase {
 			$vals[] = $e->getParameters();
 			$vals[] = $e->getQueryString();
 			$vals[] = $e->getSqlState();
-			$this->database='screwed';
+			foreach($vals as $msg) {
+				echo $msg . "\n";
+			}
+			$this->database='see errors';
 			return $vals;
 		}
 
@@ -78,10 +84,122 @@ class JDdatabase {
 		return $dbh;
 	}
 
-	public function showTables(): ResultSet {
+	public function updateStatus($status,$symbol): ResultSet {
+		//add active status
+		$dbh = $this->database;
+		if (is_string($dbh)) { echo $dbh . "\n"; }
+
+		$query = "UPDATE company SET activestatus=" . "'" . $status . "'" .  " WHERE symbol=" . "'" . $symbol . "'" ;
+		try {
+			$results = $dbh->query($query);
+		}  catch (Exception $e) {
+			$message = $e->getMessage();
+			echo self::ERRORMSG . $message . "\n";
+		}
+		return $results;
+	}
+
+	public function addCompany($symbol, $name, $status): ResultSet {
+		//add symbol and name and active status
+		$dbh = $this->database;
+		if (is_string($dbh)) { echo $dbh . "\n"; }
+
+		$query = "INSERT INTO company (symbol,name,activestatus) VALUES (" .
+			"'" . $symbol . "'" . "," . "'" .$name . "'" . "," . "'" . $status . "'" . ")";
+
+		try {
+			$results = $dbh->query($query);
+			echo "Insert ID: " . $dbh->getInsertId() . "\n";
+			//getQueryString() dump() getRowCount getColumnCount getParameters getRowCount
+  		}  catch (Exception $e) {
+			$message = $e->getMessage();
+			echo self::ERRORMSG . $message . "\n";
+		}
+
+		return $results;
+	}
+
+	public function addNewCompany($name, $status, $cik): int {
+		//add symbol and name and active status
+		$dbh = $this->database;
+		if (is_string($dbh)) { echo $dbh . "\n"; }
+
+		//check if already in database
+		$val = $this->checkCompanyExistence($cik);
+
+		//if not, add
+		if($val == 0) {
+			$query = "INSERT INTO company (name,activestatus,cik) VALUES (" .
+				"'" . $name . "'" . "," . "'" . $status . "'" . "," . "'" . $cik . "'" . ")";
+			try {
+				$dbh->query($query);
+				echo "Insert ID in DB Class: " . $dbh->getInsertId() . "\n";
+				$val = $dbh->getInsertId();
+				//getQueryString() dump() getRowCount getColumnCount getParameters getRowCount
+			} catch (Exception $e) {
+				$message = $e->getMessage();
+				echo self::ERRORMSG . $message . "\n";
+				$val = 0;
+			}
+		}
+
+		return $val;
+	}
+
+
+	public function checkCompanyExistence($cik): int {
 
 		$dbh = $this->database;
-		$query = "SELECT * from company";
+		if(is_string($dbh)) { echo $dbh . "\n"; }
+
+		$query = "SELECT name from company where cik=" . "'" . $cik . "'";
+		try {
+			//resultset obj
+			$results = $dbh->query($query);
+			$results = $results->getRowCount();
+			//getQueryString() dump() getRowCount getColumnCount getParameters getRowCount
+
+		} catch (Exception $e) {
+
+			$message = $e->getMessage();
+			echo self::ERRORMSG . $message . "\n";
+
+		}
+		return $results;
+	}
+
+
+
+	public function checkTickerExistence($sym): ResultSet {
+
+		$dbh = $this->database;
+		if(is_string($dbh)) {
+			echo $dbh . "\n";
+		}
+
+		$query = "SELECT name from company where symbol=" . "'" . $sym . "'";
+		try {
+			//resultset obj
+			$results = $dbh->query($query);
+			//getQueryString() dump() getRowCount getColumnCount getParameters getRowCount
+
+		} catch (Exception $e) {
+
+			$message = $e->getMessage();
+			echo self::ERRORMSG . $message . "\n";
+
+		}
+		return $results;
+	}
+
+	public function showTables(int $limit): ResultSet {
+
+		$dbh = $this->database;
+		if(is_string($dbh)) {
+			echo $dbh . "\n";
+		}
+
+		$query = "SELECT id,name, symbol,ceo from company ORDER BY symbol limit $limit";
 		try {
 			//resultset obj
 			$results = $dbh->query($query);
@@ -91,9 +209,80 @@ class JDdatabase {
 		} catch (Exception $e) {
 
 			$message = $e->getMessage();
-			echo "Error on select: " . $message . "\n";
+			echo self::ERRORMSG . $message . "\n";
 
 		}
 		return $results;
 	}
-}
+
+
+	public function storeCikValue($cik,$ticker): ResultSet {
+		//puts CIK into company table
+		$dbh = $this->database;
+
+		try {
+			//resultset obj
+			$results = $dbh->query('UPDATE company set', [
+				'cik'	=> $cik,
+			], 'where symbol = ?', $ticker);
+
+			$results->getRowCount();
+			//getQueryString() dump() getRowCount getColumnCount getParameters getInsertId()
+
+		} catch (Exception $e) {
+
+			$message = $e->getMessage();
+			echo self::ERRORMSG . $message . "\n";
+
+		}
+		return $results;
+	}
+
+
+	//database entries from Report Processor Start Here.
+
+		public function selectActiveStocksList(): ?array {
+
+			$dbh = $this->database;
+			$active = 'y';
+			$query = "SELECT id, cik, symbol from company where cik!=0 and activestatus = " . "'" . $active . "'";
+			try {
+				//resultset obj -
+				//$results = $dbh->query($query);
+				//array returned
+				$results = $dbh->fetchAll($query);
+				//getQueryString() dump() getRowCount getColumnCount getParameters getRowCount
+			} catch(DException $e) {
+				$message = $e->getMessage();
+				echo $message . "\n";
+
+			}
+			return $results;
+
+		}
+
+		public function enterRecordInfo(int $co_id, int $rec_id, int $store_count): int {
+
+			//called by FinancialRecord Class to store its data
+			$dbh = $this->database;
+
+			$query = "INSERT INTO financialrecords (company_id, datastore_count, record_id) VALUES (" .
+				"'" . $co_id . "'" . "," . "'" .$store_count . "'" . "," . "'" . $rec_id . "')";
+
+			try {
+				$dbh->query($query);
+				$val = $dbh->getInsertId();
+				echo "Insert ID in DB Class: " . $dbh->getInsertId() . "\n";
+				sleep(5);
+				//getQueryString() dump() getRowCount getColumnCount getParameters getRowCount
+			}  catch (Exception $e) {
+				$message = $e->getMessage();
+				echo self::ERRORMSG . $message . "\n";
+				sleep(5);
+				$val = 0;
+			}
+			return $val;
+
+		}
+
+} //end of class

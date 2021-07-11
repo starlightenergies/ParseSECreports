@@ -24,7 +24,7 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @version:    	1.0
  * @lastUpdate:  	2021-06-28
  * @author:        	James Danforth <james@reemotex.com>
- * @pattern:
+ * @pattern:		Container
  * @since:    		2021-06-24
  * @controller:
  * @view:
@@ -34,11 +34,17 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @comment: 		Entry saves entries for storage in Data class store
  */
 
+/* usage
+	- holds all entries in an SEC companyfacts CIK numbered JSON file in data dir
+	- persistent storage in stockengine database. linked to data table, company table. taxonomy terms table
+	- used in processing by ReportProcessor.php, which puts json data into data object and stores entries in entry store
+	-  data objects held in financialrecords object. these data objects hold all the entries from these entries objects
+*/
 
 class Entry {
 
 	public int $id;
-	public static int $entry_id = 0;
+	public static int $entry_id = 1;
 	public string $name;
 	public array $keys = [];
 	public array $values = [];
@@ -47,7 +53,7 @@ class Entry {
 	public string $status;
 
 	public function __construct($name) {
-		$this->id = 1 + Entry::$entry_id++;
+		$this->id = Entry::$entry_id++;
 		$this->name = $name;
 		$this->current_key = '';
 		$this->current_value = '';

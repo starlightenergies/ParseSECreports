@@ -31,7 +31,7 @@
 	"autoload": {
 		"classmap": ["src/","classes/"],
 		"psr-4": {
-			"JDApp\\": "classes/"
+			"JDApp\\": ["classes/","bin/"]
 			}
 		},
 

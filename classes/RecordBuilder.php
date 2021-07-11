@@ -172,7 +172,8 @@ class RecordBuilder {
 			case STOREKEY:                                                            //ok set by left brace
 				switch ($Record->key_name) {
 					case SEC_ID:
-						$Record->cik = $Record->key_value;
+						$cik_val = intval($Record->key_value);
+						$Record->cik = $cik_val;
 						$header[$Record->key_name] = $Record->key_value;
 						$Record->header[] = $header;
 						$Record->key_name = '';

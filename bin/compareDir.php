@@ -1,4 +1,48 @@
 <?php
+namespace JDApp;
+include "../vendor/autoload.php";
+
+/* MIT LICENSE
+Copyright 2021 StarlightEnergies.com
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+and associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
+THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+
+/**
+ * @purpose:        XBRL Report Processing Application
+ * @filename:       CompareDir.php
+ * @version:        1.0
+ * @lastUpdate:    	2021-07-09
+ * @author:         James Danforth <james@reemotex.com>
+ * @pattern:		App-Monitor
+ * @since:          2021-06-24
+ * @controller:		Cron
+ * @view:
+ * @mytodo:
+ * @delegates:
+ * @inheritsFrom:
+ * @inheritsTo:
+ * @comment:		removes duplicate JSON files from bulk file download
+ */
+
+/* summary and usage
+	after a new bulk data file downloaded (~875Mb) and extracted to data2 dir, this routine
+	compares processed files in data1 dir to data2 dir. then removes any duplicates. what is left
+	are new files in data2 that need processing.
+
+*/
 
 $dir1 = __DIR__ . "/../data";
 $dir2 = __DIR__ . "/../data2";
@@ -65,7 +109,6 @@ foreach ($dir_2_array as $file2 ){
 				shell_exec('rm -f ' . $file2_path);
 			}
 
-
 			//flush the array
 			$duplicatesArr = array();
 
@@ -80,3 +123,4 @@ echo "same file count: " . $sameFileCount . "\n";
 echo "same file size: " . $sameFileSize . "\n";
 
 echo "same file hash: " . $sameHash . "\n";
+

@@ -26,7 +26,7 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @purpose:    	XBRL Report Processing Application
  * @filename:    	Activity.php
  * @version:    	1.0
- * @lastUpdate:  	2021-07-02
+ * @lastUpdate:  	2021-07-09
  * @author:        	James Danforth <james@reemotex.com>
  * @pattern:
  * @since:    		2021-06-24
@@ -75,7 +75,7 @@ class Activity {
 						echo "entry key: " . $key2 . " entry val: " . $values . "\n";
 						if (!preg_match("/[A-Z0-9\-]/", $values)) {
 							echo "weird character\n";
-							//sleep(5);				//usually the weird character is an empty field...TODO
+
 						}
 					}
 				}
